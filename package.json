@@ -1,0 +1,41 @@
+{
+  "name": "surpay",
+  "version": "0.1.0",
+  "description": "Official Surpay SDK for TypeScript/JavaScript",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "surpay",
+    "payments",
+    "billing",
+    "subscriptions",
+    "stripe",
+    "sdk"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@types/bun": "latest"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "private": true
+}
