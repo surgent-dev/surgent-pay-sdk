@@ -7,57 +7,65 @@
  * ```typescript
  * import { Surpay } from 'surpay'
  * 
- * const surpay = new Surpay({ apiKey: process.env.SURPAY_API_KEY })
+ * const surpay = new Surpay({ apiKey: 'sp_org_xxx' })
  * 
  * // Create a checkout session
- * const checkout = await surpay.checkout.create({
+ * const { data, error } = await surpay.checkout.create({
  *   product_id: 'prod_xxx',
  *   price_id: 'price_xxx',
  *   success_url: 'https://myapp.com/success',
  *   cancel_url: 'https://myapp.com/cancel',
  * })
  * 
- * // Redirect user to checkout
- * console.log(checkout.checkout_url)
- * ```
+ * if (error) {
+ *   console.error(error.message, error.code)
+ *   return
+ * }
  * 
- * @packageDocumentation
+ * // Redirect user to checkout
+ * console.log(data.checkout_url)
+ * ```
  */
 
-// Main client - the primary export
-export { Surpay } from './surpay.js'
-export { SurpayAdmin } from './surpay-admin.js'
+// Main clients
+export { Surpay } from './surpay.js';
+export { SurpayAdmin } from './surpay-admin.js';
 
 // Error handling
-export { SurpayError, isSurpayError } from './errors.js'
+export { SurpayError, isSurpayError } from './errors.js';
 
-// All types - users can import these for type annotations
+// All types
 export type {
+  // Result pattern
+  Result,
+  Success,
+  Failure,
+
   // Config
   SurpayConfig,
   SurpayAdminConfig,
-  
+
   // Enums
   SubscriptionStatus,
   RecurringInterval,
   TransactionType,
   CheckoutStatus,
   CheckoutMode,
-  
+
   // Organization
   CreateOrganizationRequest,
   CreateOrganizationResponse,
-  
+
   // Project
   CreateProjectRequest,
   CreateProjectResponse,
-  
+
   // Customer
   Customer,
   CustomerWithDetails,
   TransactionSummary,
   SubscriptionSummary,
-  
+
   // Product
   Product,
   CreateProductRequest,
@@ -65,24 +73,24 @@ export type {
   UpdateProductRequest,
   UpdateProductResponse,
   ProductWithPrices,
-  
+
   // Price
   ProductPrice,
   CreatePriceRequest,
   CreatePriceResponse,
-  
+
   // Checkout
   CreateCheckoutRequest,
   CreateCheckoutResponse,
-  
+
   // Transaction
   Transaction,
-  
+
   // Subscription
   Subscription,
-  
+
   // Accounts
   ConnectAccountRequest,
   ConnectAccountResponse,
   ConnectedAccount,
-} from './types.js'
+} from './types.js';

@@ -1,20 +1,35 @@
-import { SurpayClient } from './client.js'
-import { OrganizationsResource } from './resources/organizations.js'
-import type { SurpayAdminConfig } from './types.js'
+/**
+ * Surpay Admin Client
+ * 
+ * SDK client for organization-level operations (master key required).
+ */
+
+import { SurpayClient } from './client.js';
+import type {
+  SurpayAdminConfig,
+  CreateOrganizationRequest,
+  CreateOrganizationResponse,
+} from './types.js';
 
 export class SurpayAdmin extends SurpayClient {
-  public readonly organizations: OrganizationsResource
+  constructor(options?: SurpayAdminConfig) {
+    const envMasterKey = typeof process !== 'undefined' ? process.env.SURPAY_MASTER_KEY : undefined;
+    const masterKey = options?.masterKey || envMasterKey || '';
+    const baseUrl = options?.baseUrl;
 
-  constructor(config: SurpayAdminConfig) {
-    if (!config.masterKey?.startsWith('sp_master_')) {
-      throw new Error('Invalid master key format. Expected sp_master_... prefix.')
+    if (!masterKey) {
+      throw new Error('Surpay master key is required. Pass it via options or set SURPAY_MASTER_KEY env var.');
     }
 
-    super({
-      apiKey: config.masterKey,
-      baseUrl: config.baseUrl
-    })
+    if (!masterKey.startsWith('sp_master_')) {
+      throw new Error('Invalid master key format. Admin keys must start with sp_master_');
+    }
 
-    this.organizations = new OrganizationsResource(this)
+    super({ apiKey: masterKey, baseUrl });
   }
+
+  organizations = {
+    create: (params: CreateOrganizationRequest) =>
+      this.post<CreateOrganizationResponse>('/organizations', params),
+  };
 }

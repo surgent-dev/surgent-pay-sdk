@@ -1,117 +1,102 @@
 /**
- * Surpay SDK Main Client
+ * Surpay Client
  * 
- * This is the main entry point for the SDK.
- * It extends SurpayClient (HTTP methods) and exposes resource namespaces.
- * 
- * @example
- * ```typescript
- * import { Surpay } from 'surpay'
- * 
- * const surpay = new Surpay({ apiKey: process.env.SURPAY_API_KEY })
- * 
- * // Use resource namespaces
- * const customers = await surpay.customers.list(projectId)
- * const checkout = await surpay.checkout.create({ ... })
- * ```
+ * Main SDK client for tenant-level operations.
+ * Uses grouped method namespaces (Autumn pattern).
  */
 
-import { SurpayClient } from './client.js'
-import type { SurpayConfig } from './types.js'
-
-// Import all resource classes
-import { CustomersResource } from './resources/customers.js'
-import { ProductsResource, PricesResource } from './resources/products.js'
-import { CheckoutResource } from './resources/checkout.js'
-import { SubscriptionsResource } from './resources/subscriptions.js'
-import { TransactionsResource } from './resources/transactions.js'
-import { ProjectsResource } from './resources/projects.js'
-import { AccountsResource } from './resources/accounts.js'
+import { SurpayClient } from './client.js';
+import type {
+  SurpayConfig,
+  Customer,
+  CustomerWithDetails,
+  CreateProductRequest,
+  CreateProductResponse,
+  UpdateProductRequest,
+  UpdateProductResponse,
+  ProductWithPrices,
+  CreatePriceRequest,
+  CreatePriceResponse,
+  CreateCheckoutRequest,
+  CreateCheckoutResponse,
+  Subscription,
+  Transaction,
+  CreateProjectRequest,
+  CreateProjectResponse,
+  ConnectAccountRequest,
+  ConnectAccountResponse,
+  ConnectedAccount,
+} from './types.js';
 
 export class Surpay extends SurpayClient {
-  /**
-   * Customer operations.
-   * Customers are scoped to projects.
-   */
-  readonly customers: CustomersResource
+  constructor(options?: SurpayConfig) {
+    const envApiKey = typeof process !== 'undefined' ? process.env.SURPAY_API_KEY : undefined;
+    const apiKey = options?.apiKey || envApiKey || '';
+    const baseUrl = options?.baseUrl;
 
-  /**
-   * Product operations.
-   * Products are versioned - updates create new versions.
-   */
-  readonly products: ProductsResource
-
-  /**
-   * Price operations.
-   * Prices are attached to product groups.
-   */
-  readonly prices: PricesResource
-
-  /**
-   * Checkout session operations.
-   * Create hosted checkout pages for payments.
-   */
-  readonly checkout: CheckoutResource
-
-  /**
-   * Subscription operations.
-   * Subscriptions are created when customers pay for recurring products.
-   */
-  readonly subscriptions: SubscriptionsResource
-
-  /**
-   * Transaction operations.
-   * View payment history and revenue.
-   */
-  readonly transactions: TransactionsResource
-
-  /**
-   * Project operations.
-   * Projects contain your products, customers, and transactions.
-   */
-  readonly projects: ProjectsResource
-
-  /**
-   * Connected account operations (Stripe Connect).
-   * Set up payouts to your bank account.
-   */
-  readonly accounts: AccountsResource
-
-  /**
-   * Create a new Surpay client.
-   * 
-   * @param config - SDK configuration
-   * @param config.apiKey - Your Surpay API key (format: sp_xxx_yyy)
-   * @param config.baseUrl - Optional: Override the API base URL
-   * 
-   * @example
-   * ```typescript
-   * // Production
-   * const surpay = new Surpay({ apiKey: process.env.SURPAY_API_KEY })
-   * 
-   * // Local development
-   * const surpay = new Surpay({ 
-   *   apiKey: 'sp_test_xxx',
-   *   baseUrl: 'http://localhost:3000',
-   * })
-   * ```
-   */
-  constructor(config: SurpayConfig) {
-    if (!config.apiKey?.startsWith('sp_org_')) {
-      throw new Error('Invalid API key format. Expected sp_org_... prefix.')
+    if (!apiKey) {
+      throw new Error('Surpay API key is required. Pass it via options or set SURPAY_API_KEY env var.');
     }
 
-    super(config)
+    if (!apiKey.startsWith('sp_org_')) {
+      throw new Error('Invalid API key format. Tenant keys must start with sp_org_');
+    }
 
-    // Initialize all resource namespaces
-    // We pass `this` so resources can access the protected HTTP methods
-    this.customers = new CustomersResource(this)
-    this.products = new ProductsResource(this)
-    this.prices = new PricesResource(this)
-    this.checkout = new CheckoutResource(this)
-    this.subscriptions = new SubscriptionsResource(this)
-    this.transactions = new TransactionsResource(this)
-    this.projects = new ProjectsResource(this)
-    this.accounts = new AccountsResource(this)
+    super({ apiKey, baseUrl });
   }
+
+  customers = {
+    list: (projectId: string) =>
+      this.get<Customer[]>(`/project/${projectId}/customers`),
+
+    get: (projectId: string, customerId: string) =>
+      this.get<CustomerWithDetails>(`/project/${projectId}/customer/${customerId}`),
+  };
+
+  products = {
+    create: (params: CreateProductRequest) =>
+      this.post<CreateProductResponse>('/product/', params),
+
+    update: (productId: string, params: UpdateProductRequest) =>
+      this.put<UpdateProductResponse>(`/product/${productId}`, params),
+
+    listWithPrices: () =>
+      this.get<ProductWithPrices[]>('/product/prices'),
+  };
+
+  prices = {
+    create: (params: CreatePriceRequest) =>
+      this.post<CreatePriceResponse>('/product/price', params),
+  };
+
+  checkout = {
+    create: (params: CreateCheckoutRequest) =>
+      this.post<CreateCheckoutResponse>('/checkout/', params),
+  };
+
+  subscriptions = {
+    list: (projectId: string) =>
+      this.get<Subscription[]>(`/project/${projectId}/subscriptions`),
+  };
+
+  transactions = {
+    list: (projectId: string) =>
+      this.get<Transaction[]>(`/project/${projectId}/transactions`),
+  };
+
+  projects = {
+    create: (params: CreateProjectRequest) =>
+      this.post<CreateProjectResponse>('/project/', params),
+  };
+
+  accounts = {
+    connect: (params: ConnectAccountRequest) =>
+      this.post<ConnectAccountResponse>('/accounts/connect', params),
+
+    get: (accountId: string) =>
+      this.get<ConnectedAccount>(`/accounts/${accountId}`),
+
+    list: () =>
+      this.get<ConnectedAccount[]>('/accounts/'),
+  };
 }

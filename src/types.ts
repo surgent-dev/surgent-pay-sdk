@@ -2,11 +2,19 @@
  * Surpay SDK Type Definitions
  * 
  * These types mirror your Rust API's request/response shapes.
- * We use snake_case to match the API directly (simpler than transforming).
+ * We use snake_case to match the API directly.
  */
 
 // ============================================================================
-// Enums (as union types - TypeScript's idiomatic approach)
+// Result Pattern Types
+// ============================================================================
+
+export type Success<T> = { data: T; error: null; statusCode: number };
+export type Failure<E> = { data: null; error: E; statusCode: number };
+export type Result<T, E = unknown> = Success<T> | Failure<E>;
+
+// ============================================================================
+// Enums (as union types)
 // ============================================================================
 
 export type SubscriptionStatus = 
@@ -265,15 +273,15 @@ export interface ConnectedAccount {
 // ============================================================================
 
 export interface SurpayConfig {
-  /** Your Surpay API key (format: sp_xxx_yyy) */
-  apiKey: string;
+  /** Your Surpay API key (format: sp_org_xxx) */
+  apiKey?: string;
   /** Override the base URL (default: https://api.surpay.io) */
   baseUrl?: string;
 }
 
 export interface SurpayAdminConfig {
   /** Your Surpay master key (format: sp_master_xxx) */
-  masterKey: string;
+  masterKey?: string;
   /** Override the base URL (default: https://api.surpay.io) */
   baseUrl?: string;
 }
