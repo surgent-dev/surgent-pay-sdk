@@ -36,7 +36,7 @@ export class AccountsResource {
    * ```
    */
   async connect(params: ConnectAccountRequest): Promise<ConnectAccountResponse> {
-    return (this.client as any).post('/accounts/connect', params);
+    return this.client.post('/accounts/connect', params);
   }
 
   /**
@@ -46,7 +46,7 @@ export class AccountsResource {
    * @returns Account details
    */
   async get(accountId: string): Promise<ConnectedAccount> {
-    return (this.client as any).get(`/accounts/${accountId}`);
+    return this.client.get(`/accounts/${accountId}`);
   }
 
   /**
@@ -55,6 +55,6 @@ export class AccountsResource {
    * @returns Array of connected accounts
    */
   async list(): Promise<ConnectedAccount[]> {
-    return (this.client as any).get('/accounts/');
+    return this.client.get('/accounts/');
   }
 }

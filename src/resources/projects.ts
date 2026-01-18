@@ -30,6 +30,6 @@ export class ProjectsResource {
    * ```
    */
   async create(params: CreateProjectRequest): Promise<CreateProjectResponse> {
-    return (this.client as any).post('/project/', params);
+    return this.client.post('/project/', params);
   }
 }

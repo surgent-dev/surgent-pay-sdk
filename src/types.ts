@@ -270,3 +270,10 @@ export interface SurpayConfig {
   /** Override the base URL (default: https://api.surpay.io) */
   baseUrl?: string;
 }
+
+export interface SurpayAdminConfig {
+  /** Your Surpay master key (format: sp_master_xxx) */
+  masterKey: string;
+  /** Override the base URL (default: https://api.surpay.io) */
+  baseUrl?: string;
+}

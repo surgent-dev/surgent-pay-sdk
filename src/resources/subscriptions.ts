@@ -28,6 +28,6 @@ export class SubscriptionsResource {
    * ```
    */
   async list(projectId: string): Promise<Subscription[]> {
-    return (this.client as any).get(`/project/${projectId}/subscriptions`);
+    return this.client.get(`/project/${projectId}/subscriptions`);
   }
 }

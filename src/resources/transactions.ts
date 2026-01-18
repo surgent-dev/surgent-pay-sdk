@@ -5,8 +5,8 @@
  * Transactions represent payment events (charges, refunds, etc.).
  */
 
-import type { SurpayClient } from '../client.js';
-import type { Transaction } from '../types.js';
+import type { SurpayClient } from '../client.js'
+import type { Transaction } from '../types.js'
 
 export class TransactionsResource {
   constructor(private client: SurpayClient) {}
@@ -21,14 +21,14 @@ export class TransactionsResource {
    * 
    * @example
    * ```typescript
-   * const transactions = await surpay.transactions.list('project-uuid');
+   * const transactions = await surpay.transactions.list('project-uuid')
    * 
    * // Calculate total revenue
-   * const totalRevenue = transactions.reduce((sum, t) => sum + t.amount, 0);
-   * console.log(`Total revenue: $${(totalRevenue / 100).toFixed(2)}`);
+   * const totalRevenue = transactions.reduce((sum, t) => sum + t.amount, 0)
+   * console.log(`Total revenue: $${(totalRevenue / 100).toFixed(2)}`)
    * ```
    */
   async list(projectId: string): Promise<Transaction[]> {
-    return (this.client as any).get(`/project/${projectId}/transactions`);
+    return this.client.get(`/project/${projectId}/transactions`)
   }
 }

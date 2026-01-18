@@ -34,6 +34,6 @@ export class CheckoutResource {
    * ```
    */
   async create(params: CreateCheckoutRequest): Promise<CreateCheckoutResponse> {
-    return (this.client as any).post('/checkout/', params);
+    return this.client.post('/checkout/', params);
   }
 }

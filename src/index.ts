@@ -5,9 +5,9 @@
  * 
  * @example
  * ```typescript
- * import { Surpay } from 'surpay';
+ * import { Surpay } from 'surpay'
  * 
- * const surpay = new Surpay({ apiKey: process.env.SURPAY_API_KEY });
+ * const surpay = new Surpay({ apiKey: process.env.SURPAY_API_KEY })
  * 
  * // Create a checkout session
  * const checkout = await surpay.checkout.create({
@@ -15,25 +15,27 @@
  *   price_id: 'price_xxx',
  *   success_url: 'https://myapp.com/success',
  *   cancel_url: 'https://myapp.com/cancel',
- * });
+ * })
  * 
  * // Redirect user to checkout
- * console.log(checkout.checkout_url);
+ * console.log(checkout.checkout_url)
  * ```
  * 
  * @packageDocumentation
  */
 
 // Main client - the primary export
-export { Surpay } from './surpay.js';
+export { Surpay } from './surpay.js'
+export { SurpayAdmin } from './surpay-admin.js'
 
 // Error handling
-export { SurpayError, isSurpayError } from './errors.js';
+export { SurpayError, isSurpayError } from './errors.js'
 
 // All types - users can import these for type annotations
 export type {
   // Config
   SurpayConfig,
+  SurpayAdminConfig,
   
   // Enums
   SubscriptionStatus,
@@ -83,4 +85,4 @@ export type {
   ConnectAccountRequest,
   ConnectAccountResponse,
   ConnectedAccount,
-} from './types.js';
+} from './types.js'

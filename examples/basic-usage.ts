@@ -9,7 +9,7 @@ import { Surpay, SurpayError, isSurpayError } from '../src/index.js';
 
 // Initialize the client
 const surpay = new Surpay({
-  apiKey: process.env.SURPAY_API_KEY ?? 'sp_test_xxx',
+  apiKey: process.env.SURPAY_API_KEY ?? 'sp_org_test_key_123',
   baseUrl: process.env.SURPAY_BASE_URL ?? 'http://localhost:3000',
 });
 

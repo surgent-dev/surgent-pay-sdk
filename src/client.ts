@@ -16,15 +16,10 @@ import type { SurpayConfig } from './types.js';
 const DEFAULT_BASE_URL = 'https://api.surpay.io';
 
 export class SurpayClient {
-  protected readonly baseUrl: string;
-  protected readonly headers: Record<string, string>;
+  public readonly baseUrl: string;
+  public readonly headers: Record<string, string>;
 
   constructor(config: SurpayConfig) {
-    // Validate API key format (sp_prefix_secret)
-    if (!config.apiKey || !config.apiKey.startsWith('sp_')) {
-      throw new Error('Invalid API key format. Expected format: sp_xxx_yyy');
-    }
-
     this.baseUrl = config.baseUrl ?? DEFAULT_BASE_URL;
     this.headers = {
       'Authorization': `Bearer ${config.apiKey}`,
@@ -38,7 +33,7 @@ export class SurpayClient {
    * @param path - API endpoint path (e.g., '/project/123/customers')
    * @returns Parsed JSON response
    */
-  protected async get<T>(path: string): Promise<T> {
+  public async get<T>(path: string): Promise<T> {
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: 'GET',
       headers: this.headers,
@@ -54,7 +49,7 @@ export class SurpayClient {
    * @param body - Request body (will be JSON stringified)
    * @returns Parsed JSON response
    */
-  protected async post<T>(path: string, body: unknown): Promise<T> {
+  public async post<T>(path: string, body: unknown): Promise<T> {
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: 'POST',
       headers: this.headers,
@@ -71,7 +66,7 @@ export class SurpayClient {
    * @param body - Request body (will be JSON stringified)
    * @returns Parsed JSON response
    */
-  protected async put<T>(path: string, body: unknown): Promise<T> {
+  public async put<T>(path: string, body: unknown): Promise<T> {
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: 'PUT',
       headers: this.headers,
@@ -87,7 +82,7 @@ export class SurpayClient {
    * @param path - API endpoint path
    * @returns Parsed JSON response
    */
-  protected async delete<T>(path: string): Promise<T> {
+  public async delete<T>(path: string): Promise<T> {
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: 'DELETE',
       headers: this.headers,

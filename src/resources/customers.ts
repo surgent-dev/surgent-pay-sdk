@@ -24,9 +24,7 @@ export class CustomersResource {
    * ```
    */
   async list(projectId: string): Promise<Customer[]> {
-    // We need to access the protected get method from SurpayClient
-    // This is done by having Surpay class pass itself to resources
-    return (this.client as any).get(`/project/${projectId}/customers`);
+    return this.client.get(`/project/${projectId}/customers`);
   }
 
   /**
@@ -43,6 +41,6 @@ export class CustomersResource {
    * ```
    */
   async get(projectId: string, customerId: string): Promise<CustomerWithDetails> {
-    return (this.client as any).get(`/project/${projectId}/customer/${customerId}`);
+    return this.client.get(`/project/${projectId}/customer/${customerId}`);
   }
 }

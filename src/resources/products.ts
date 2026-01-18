@@ -40,7 +40,7 @@ export class ProductsResource {
    * ```
    */
   async create(params: CreateProductRequest): Promise<CreateProductResponse> {
-    return (this.client as any).post('/product/', params);
+    return this.client.post('/product/', params);
   }
 
   /**
@@ -63,7 +63,7 @@ export class ProductsResource {
    * ```
    */
   async update(productId: string, params: UpdateProductRequest): Promise<UpdateProductResponse> {
-    return (this.client as any).put(`/product/${productId}`, params);
+    return this.client.put(`/product/${productId}`, params);
   }
 
   /**
@@ -82,7 +82,7 @@ export class ProductsResource {
    * ```
    */
   async listWithPrices(): Promise<ProductWithPrices[]> {
-    return (this.client as any).get('/product/prices');
+    return this.client.get('/product/prices');
   }
 }
 
@@ -119,6 +119,6 @@ export class PricesResource {
    * ```
    */
   async create(params: CreatePriceRequest): Promise<CreatePriceResponse> {
-    return (this.client as any).post('/product/price', params);
+    return this.client.post('/product/price', params);
   }
 }
