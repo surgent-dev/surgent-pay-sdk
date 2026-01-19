@@ -62,7 +62,7 @@ async function main() {
     project_id: project.id,
     product_group_id: productGroupId,
     name: 'Monthly',
-    price_amount: 999, // $9.99 in cents
+    price: 999, // $9.99 in cents
     price_currency: 'usd',
     recurring_interval: 'month',
   });
@@ -78,7 +78,7 @@ async function main() {
     project_id: project.id,
     product_group_id: productGroupId,
     name: 'Yearly',
-    price_amount: 9900, // $99/year (save ~17%)
+    price: 9900, // $99/year (save ~17%)
     price_currency: 'usd',
     recurring_interval: 'year',
   });
@@ -104,7 +104,7 @@ async function main() {
     console.log(`- ${p.name} (${prices.length} prices)`);
     for (const price of prices) {
       const interval = price.recurring_interval ? `/${price.recurring_interval}` : ' one-time';
-      console.log(`  - $${(price.price_amount / 100).toFixed(2)}${interval}`);
+      console.log(`  - $${(price.price / 100).toFixed(2)}${interval}`);
     }
   }
 
@@ -115,8 +115,8 @@ async function main() {
   const { data: checkout, error: checkoutError } = await surpay.checkout.create({
     product_id: product.product_id,
     price_id: monthlyPrice.product_price_id,
-    success_url: 'https://myapp.com/success',
-    cancel_url: 'https://myapp.com/cancel',
+    success_url: 'https://localhost:8090/success',
+    cancel_url: 'https://localhost:8090/cancel',
   });
 
   if (checkoutError) {

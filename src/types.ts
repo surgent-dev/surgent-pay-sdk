@@ -73,16 +73,16 @@ export interface CreateProjectResponse {
 
 export interface Customer {
   id: string;
-  project_id?: string;
   email: string;
-  name?: string;
-  processor_customer_id?: string;
+  name?: string | null;
+  processor_customer_id?: string | null;
+  project_id?: string | null;
 }
 
 export interface TransactionSummary {
   id: string;
   created_at: string;
-  type_: TransactionType;
+  type: TransactionType;
   amount: number;
   currency: string;
 }
@@ -136,17 +136,15 @@ export interface UpdateProductResponse {
 
 export interface Product {
   id: string;
-  project_id: string;
   product_group_id: string;
-  version: number;
   name: string;
-  description?: string;
   slug: string;
-  is_default: boolean;
-  is_archived: boolean;
-  processor_product_id?: string;
-  created_at: string;
-  updated_at: string;
+  description?: string | null;
+  is_archived?: boolean | null;
+  is_default?: boolean | null;
+  processor_product_id?: string | null;
+  project_id?: string | null;
+  version?: number | null;
 }
 
 // ============================================================================
@@ -159,7 +157,7 @@ export interface CreatePriceRequest {
   name?: string;
   description?: string;
   is_default?: boolean;
-  price_amount: number;
+  price: number;
   price_currency: string;
   recurring_interval?: RecurringInterval;
 }
@@ -170,15 +168,12 @@ export interface CreatePriceResponse {
 
 export interface ProductPrice {
   id: string;
-  product_id: string;
-  name?: string;
-  description?: string;
-  price_amount: number;
-  price_currency: string;
-  recurring_interval?: RecurringInterval;
-  is_default: boolean;
-  processor_price_id?: string;
-  created_at: string;
+  name?: string | null;
+  description?: string | null;
+  price_amount?: number | null;
+  price_currency?: string | null;
+  is_default?: boolean | null;
+  recurring_interval?: RecurringInterval | null;
 }
 
 export interface ProductWithPrices {
@@ -208,17 +203,41 @@ export interface CreateCheckoutResponse {
 
 export interface Transaction {
   id: string;
-  project_id?: string;
-  customer_id?: string;
-  subscription_id?: string;
-  type_: TransactionType;
+  created_at: string;
+  type: TransactionType;
   amount: number;
   currency: string;
-  processor_transaction_id?: string;
-  processor_fee?: number;
-  net_amount?: number;
+  processor: string;
+
+  // Optional fields
+  account_id?: string | null;
+  account_amount?: number | null;
+  account_currency?: string | null;
+  charge_id?: string | null;
+  checkout_session_id?: string | null;
+  customer_id?: string | null;
+  incurred_by_transaction_id?: string | null;
   metadata?: Record<string, unknown>;
-  created_at: string;
+  payment_transaction_id?: string | null;
+  payout_id?: string | null;
+  payout_transaction_id?: string | null;
+  presentment_amount?: number | null;
+  presentment_currency?: string | null;
+  presentment_tax_amount?: number | null;
+  processor_invoice_id?: string | null;
+  product_id?: string | null;
+  product_price_id?: string | null;
+  project_id?: string | null;
+  refund_id?: string | null;
+  refunded_at?: string | null;
+  subscription_id?: string | null;
+  succeeded_at?: string | null;
+  tax_amount?: number | null;
+  tax_country?: string | null;
+  tax_filing_amount?: number | null;
+  tax_filing_currency?: string | null;
+  tax_state?: string | null;
+  transfer_id?: string | null;
 }
 
 // ============================================================================
@@ -227,19 +246,20 @@ export interface Transaction {
 
 export interface Subscription {
   id: string;
-  project_id?: string;
-  product_id?: string;
-  product_price_id?: string;
-  customer_id?: string;
-  processor_subscription_id?: string;
-  processor_customer_id?: string;
   created_at: string;
-  deleted_at?: string;
-  current_period_start?: string;
-  current_period_end?: string;
-  canceled_at?: string;
-  ended_at?: string;
   status: SubscriptionStatus;
+
+  canceled_at?: string | null;
+  current_period_end?: string | null;
+  current_period_start?: string | null;
+  customer_id?: string | null;
+  deleted_at?: string | null;
+  ended_at?: string | null;
+  processor_customer_id?: string | null;
+  processor_subscription_id?: string | null;
+  product_id?: string | null;
+  product_price_id?: string | null;
+  project_id?: string | null;
 }
 
 // ============================================================================
@@ -261,11 +281,15 @@ export interface ConnectAccountResponse {
 
 export interface ConnectedAccount {
   id: string;
-  organization_id: string;
   processor: string;
-  processor_account_id?: string;
   status: string;
-  created_at: string;
+  country: string;
+  currency: string;
+  details_submitted: boolean;
+  charges_enabled: boolean;
+  payouts_enabled: boolean;
+  business_type?: string | null;
+  processor_account_id?: string | null;
 }
 
 // ============================================================================
