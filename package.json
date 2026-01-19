@@ -18,7 +18,10 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "prepublishOnly": "npm run clean && npm run build"
+    "prepublishOnly": "bun run clean && bun run build",
+    "changeset": "bunx changeset",
+    "changeset:version": "bunx changeset version",
+    "changeset:release": "bunx changeset publish"
   },
   "keywords": [
     "surpay",
@@ -37,5 +40,7 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "private": true
+  "publishConfig": {
+    "access": "public"
+  }
 }
