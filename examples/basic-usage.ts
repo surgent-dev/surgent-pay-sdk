@@ -15,13 +15,16 @@ const surpay = new Surpay({
 });
 
 async function main() {
+  // Generate timestamp to avoid conflicts across multiple runs
+  const timestamp = Date.now();
+
   // =========================================================================
   // 1. Create a Project
   // =========================================================================
   console.log('Creating project...');
   const { data: project, error: projectError } = await surpay.projects.create({
-    name: 'My SaaS App',
-    slug: 'my-saas-app',
+    name: `My SaaS App ${timestamp}`,
+    slug: `my-saas-app-${timestamp}`,
   });
 
   if (projectError) {
@@ -38,8 +41,8 @@ async function main() {
   const { data: product, error: productError } = await surpay.products.create({
     project_id: project.id,
     product_group_id: productGroupId,
-    name: 'Pro Plan',
-    slug: 'pro-plan',
+    name: `Pro Plan ${timestamp}`,
+    slug: `pro-plan-${timestamp}`,
     description: 'Full access to all features',
   });
 
