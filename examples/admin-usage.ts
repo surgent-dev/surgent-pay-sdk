@@ -16,7 +16,7 @@ async function main() {
   });
 
   // Create a new organization
-  const { data: org, error: orgError } = await admin.organizations.create({
+  const { data: org, error: orgError } = await admin.organization.create({
     name: 'Tenant A',
     slug: 'tenant-a',
   });

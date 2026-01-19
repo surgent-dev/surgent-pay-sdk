@@ -28,8 +28,8 @@ export class SurpayAdmin extends SurpayClient {
     super({ apiKey: masterKey, baseUrl });
   }
 
-  organizations = {
+  organization = {
     create: (params: CreateOrganizationRequest) =>
-      this.post<CreateOrganizationResponse>('/organizations', params),
+      this.post<CreateOrganizationResponse>('/organization', params),
   };
 }

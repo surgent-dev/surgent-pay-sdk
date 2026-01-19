@@ -159,7 +159,7 @@ export interface CreatePriceRequest {
   name?: string;
   description?: string;
   is_default?: boolean;
-  price: number;
+  price_amount: number;
   price_currency: string;
   recurring_interval?: RecurringInterval;
 }
@@ -173,7 +173,7 @@ export interface ProductPrice {
   product_id: string;
   name?: string;
   description?: string;
-  price: number;
+  price_amount: number;
   price_currency: string;
   recurring_interval?: RecurringInterval;
   is_default: boolean;

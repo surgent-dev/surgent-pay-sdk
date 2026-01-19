@@ -55,7 +55,7 @@ export class Surpay extends SurpayClient {
 
   products = {
     create: (params: CreateProductRequest) =>
-      this.post<CreateProductResponse>('/product/', params),
+      this.post<CreateProductResponse>('/product', params),
 
     update: (productId: string, params: UpdateProductRequest) =>
       this.put<UpdateProductResponse>(`/product/${productId}`, params),
@@ -71,7 +71,7 @@ export class Surpay extends SurpayClient {
 
   checkout = {
     create: (params: CreateCheckoutRequest) =>
-      this.post<CreateCheckoutResponse>('/checkout/', params),
+      this.post<CreateCheckoutResponse>('/checkout', params),
   };
 
   subscriptions = {
@@ -86,7 +86,7 @@ export class Surpay extends SurpayClient {
 
   projects = {
     create: (params: CreateProjectRequest) =>
-      this.post<CreateProjectResponse>('/project/', params),
+      this.post<CreateProjectResponse>('/project', params),
   };
 
   accounts = {
@@ -97,6 +97,6 @@ export class Surpay extends SurpayClient {
       this.get<ConnectedAccount>(`/accounts/${accountId}`),
 
     list: () =>
-      this.get<ConnectedAccount[]>('/accounts/'),
+      this.get<ConnectedAccount[]>('/accounts'),
   };
 }

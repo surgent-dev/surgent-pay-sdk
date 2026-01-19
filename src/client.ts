@@ -8,7 +8,7 @@ import { toResult } from './utils/result.js';
 import { SurpayError } from './errors.js';
 import type { Result } from './types.js';
 
-const DEFAULT_BASE_URL = 'https://api.surpay.io';
+const DEFAULT_BASE_URL = 'https://api.surgent.dev';
 
 export class SurpayClient {
   protected readonly baseUrl: string;

@@ -59,7 +59,7 @@ async function main() {
     project_id: project.id,
     product_group_id: productGroupId,
     name: 'Monthly',
-    price: 999, // $9.99 in cents
+    price_amount: 999, // $9.99 in cents
     price_currency: 'usd',
     recurring_interval: 'month',
   });
@@ -75,7 +75,7 @@ async function main() {
     project_id: project.id,
     product_group_id: productGroupId,
     name: 'Yearly',
-    price: 9900, // $99/year (save ~17%)
+    price_amount: 9900, // $99/year (save ~17%)
     price_currency: 'usd',
     recurring_interval: 'year',
   });
@@ -101,7 +101,7 @@ async function main() {
     console.log(`- ${p.name} (${prices.length} prices)`);
     for (const price of prices) {
       const interval = price.recurring_interval ? `/${price.recurring_interval}` : ' one-time';
-      console.log(`  - $${(price.price / 100).toFixed(2)}${interval}`);
+      console.log(`  - $${(price.price_amount / 100).toFixed(2)}${interval}`);
     }
   }
 
