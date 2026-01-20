@@ -59,6 +59,7 @@ export type {
   // Project
   CreateProjectRequest,
   CreateProjectResponse,
+  Project,
 
   // Customer
   Customer,

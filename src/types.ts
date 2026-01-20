@@ -67,6 +67,13 @@ export interface CreateProjectResponse {
   id: string;
 }
 
+export interface Project {
+  id: string;
+  name: string;
+  slug?: string;
+  external_id?: string | null;
+}
+
 // ============================================================================
 // Customer
 // ============================================================================

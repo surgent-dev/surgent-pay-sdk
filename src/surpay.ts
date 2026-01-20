@@ -23,6 +23,7 @@ import type {
   Transaction,
   CreateProjectRequest,
   CreateProjectResponse,
+  Project,
   ConnectAccountRequest,
   ConnectAccountResponse,
   ConnectedAccount,
@@ -87,6 +88,9 @@ export class Surpay extends SurpayClient {
   projects = {
     create: (params: CreateProjectRequest) =>
       this.post<CreateProjectResponse>('/project', params),
+
+    list: () =>
+      this.get<Project[]>('/project'),
   };
 
   accounts = {
