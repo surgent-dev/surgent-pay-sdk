@@ -60,8 +60,8 @@ export class Surpay extends SurpayClient {
     update: (productId: string, params: UpdateProductRequest) =>
       this.put<UpdateProductResponse>(`/product/${productId}`, params),
 
-    listWithPrices: () =>
-      this.get<ProductWithPrices[]>('/product/prices'),
+    listWithPrices: (projectId: string) =>
+      this.get<ProductWithPrices[]>(`/project/${projectId}/product/prices`),
   };
 
   prices = {

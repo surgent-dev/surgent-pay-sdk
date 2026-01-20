@@ -35,8 +35,23 @@ async function main() {
     baseUrl: env.SURPAY_BASE_URL ?? 'http://localhost:8090',
   });
 
-  // Tenant operations...
-  const { data: products, error: productsError } = await surpay.products.listWithPrices();
+  // Tenant operations... (requires a project ID)
+  // Note: In practice, you would need to create a project first
+  // For now, this demonstrates the API signature
+  // const { data: products, error: productsError } = await surpay.products.listWithPrices(projectId);
+
+  // Create a project for demonstration
+  const { data: project, error: projectError } = await surpay.projects.create({
+    name: 'Demo Project',
+    slug: 'demo-project',
+  });
+
+  if (projectError) {
+    console.error('Failed to create project:', projectError.message);
+    process.exit(1);
+  }
+
+  const { data: products, error: productsError } = await surpay.products.listWithPrices(project.id);
 
   if (productsError) {
     console.error('Failed to list products:', productsError.message);

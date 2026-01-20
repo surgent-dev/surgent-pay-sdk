@@ -21,8 +21,8 @@ export const toResult = async <T>(response: Response): Promise<Result<T, SurpayE
     return {
       data: null,
       error: new SurpayError({
-        message: errorData.message || `Request failed with status ${statusCode}`,
-        code: errorData.code || statusToCode(statusCode),
+        message: errorData?.message || `Request failed with status ${statusCode}`,
+        code: errorData?.code || statusToCode(statusCode),
         statusCode,
       }),
       statusCode,

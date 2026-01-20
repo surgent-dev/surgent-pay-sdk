@@ -93,7 +93,7 @@ async function main() {
   // 4. List Products with Prices
   // =========================================================================
   console.log('\nListing products with prices...');
-  const { data: productsWithPrices, error: listError } = await surpay.products.listWithPrices();
+  const { data: productsWithPrices, error: listError } = await surpay.products.listWithPrices(project.id);
 
   if (listError) {
     console.error('Failed to list products:', listError.message);
@@ -103,8 +103,10 @@ async function main() {
   for (const { product: p, prices } of productsWithPrices) {
     console.log(`- ${p.name} (${prices.length} prices)`);
     for (const price of prices) {
+      const amount = price.price_amount ?? 0;
+      const currency = price.price_currency?.toUpperCase() ?? 'USD';
       const interval = price.recurring_interval ? `/${price.recurring_interval}` : ' one-time';
-      console.log(`  - $${(price.price / 100).toFixed(2)}${interval}`);
+      console.log(`  - $${(amount / 100).toFixed(2)} ${currency}${interval}`);
     }
   }
 
