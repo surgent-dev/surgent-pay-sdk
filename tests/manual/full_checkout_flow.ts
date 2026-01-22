@@ -1,12 +1,11 @@
 /**
- * Surpay SDK - Existing Project Example
+ * Surpay SDK - Full Checkout Flow Example
  *
- * This file demonstrates using an existing project (via SURPAY_PROJECT_ID env var)
- * or creating a new one, then listing its subscriptions/customers/transactions.
+ * This file demonstrates creating a new project and running through a complete
+ * checkout flow including product creation, prices, checkout session, and
+ * listing customers/subscriptions/transactions.
  *
- * Usage:
- *   - Use existing project: SURPAY_PROJECT_ID=proj_123 bun examples/existing-project.ts
- *   - Create new project: bun examples/existing-project.ts
+ * Usage: bun run tests/manual/full_checkout_flow.ts
  */
 
 import { Surpay } from '../../src/index.js';
@@ -21,63 +20,58 @@ const surpay = new Surpay({
 });
 
 async function main() {
-  const existingProjectId = env.SURPAY_PROJECT_ID;
-  let projectId: string;
-
   // Generate timestamp to avoid conflicts across multiple runs
   const timestamp = Date.now();
 
-  if (existingProjectId) {
-    console.log(`Using existing project: ${existingProjectId}`);
-    projectId = existingProjectId;
-  } else {
-    console.log('No SURPAY_PROJECT_ID found, listing projects...');
-    const { data: projects, error: projectsError } = await surpay.projects.list();
+  // =========================================================================
+  // Project Setup - Interactive Selection
+  // =========================================================================
+  console.log('Fetching existing projects...\n');
+  const { data: projects, error: listError } = await surpay.projects.list();
 
-    if (projectsError) {
-      console.error('Failed to list projects:', projectsError.message);
+  if (listError) {
+    console.error('Failed to list projects:', listError.message);
+    process.exit(1);
+  }
+
+  let projectId: string;
+
+  if (projects.length === 0) {
+    // No projects exist, create a new one
+    console.log('No existing projects found. Creating a new project...');
+    const { data: project, error: projectError } = await surpay.projects.create({
+      name: `Test Project ${timestamp}`,
+      slug: `test-project-${timestamp}`,
+    });
+
+    if (projectError) {
+      console.error('Failed to create project:', projectError.message);
       process.exit(1);
     }
 
-    if (projects && projects.length > 0) {
-      console.log('\n' + '='.repeat(50));
-      console.log('EXISTING PROJECTS');
-      console.log('='.repeat(50));
+    projectId = project.id;
+    console.log('New project created:', projectId);
+  } else {
+    // Display existing projects as a numbered menu
+    console.log('='.repeat(50));
+    console.log('SELECT A PROJECT');
+    console.log('='.repeat(50));
+    for (let i = 0; i < projects.length; i++) {
+      const p = projects[i];
+      console.log(`[${i + 1}] ${p.name} (ID: ${p.id})`);
+    }
+    console.log(`[${projects.length + 1}] Create a new project`);
 
-      for (let i = 0; i < projects.length; i++) {
-        console.log(`[${i + 1}] ${projects[i].name} (ID: ${projects[i].id})`);
-      }
-      console.log(`[${projects.length + 1}] Create a new project`);
+    const choice = await rl.question('\nEnter your choice: ');
+    const selectedIndex = parseInt(choice, 10) - 1;
 
-      const choice = await rl.question(`\nEnter your choice (1-${projects.length + 1}): `);
-      const choiceNum = parseInt(choice, 10);
-
-      if (choiceNum >= 1 && choiceNum <= projects.length) {
-        projectId = projects[choiceNum - 1].id;
-        console.log(`\nUsing existing project: ${projects[choiceNum - 1].name}`);
-      } else if (choiceNum === projects.length + 1) {
-        const projectName = await rl.question('Enter project name: ');
-        const projectSlug = await rl.question('Enter project slug (lowercase, hyphens only): ');
-
-        console.log('Creating new project...');
-        const { data: project, error: projectError } = await surpay.projects.create({
-          name: projectName || `Test Project ${timestamp}`,
-          slug: projectSlug || `test-project-${timestamp}`,
-        });
-
-        if (projectError) {
-          console.error('Failed to create project:', projectError.message);
-          process.exit(1);
-        }
-
-        projectId = project.id;
-        console.log('New project created:', projectId);
-      } else {
-        console.log('Invalid selection. Exiting.');
-        process.exit(1);
-      }
-    } else {
-      console.log('No existing projects found. Creating new project...');
+    if (selectedIndex >= 0 && selectedIndex < projects.length) {
+      // User selected an existing project
+      projectId = projects[selectedIndex].id;
+      console.log(`\nSelected project: ${projects[selectedIndex].name}`);
+    } else if (selectedIndex === projects.length) {
+      // User chose to create a new project
+      console.log('\nCreating new project...');
       const { data: project, error: projectError } = await surpay.projects.create({
         name: `Test Project ${timestamp}`,
         slug: `test-project-${timestamp}`,
@@ -90,80 +84,27 @@ async function main() {
 
       projectId = project.id;
       console.log('New project created:', projectId);
+    } else {
+      console.log('Invalid selection. Exiting.');
+      process.exit(1);
     }
   }
 
   // =========================================================================
-  // 1. Create a Product
-  // =========================================================================
-  console.log('\nCreating product...');
-  const productGroupId = crypto.randomUUID();
-  const { data: product, error: productError } = await surpay.products.create({
-    project_id: projectId,
-    product_group_id: productGroupId,
-    name: `Pro Plan ${timestamp}`,
-    slug: `pro-plan-${timestamp}`,
-    description: 'Full access to all features',
-  });
-
-  if (productError) {
-    console.error('Failed to create product:', productError.message);
-    process.exit(1);
-  }
-  console.log('Product created:', product.product_id, 'version:', product.version);
-
-  // =========================================================================
-  // 2. Create Prices for the Product
-  // =========================================================================
-  console.log('\nCreating prices...');
-
-  // Monthly price
-  const monthlyPriceRequest = {
-    project_id: projectId,
-    product_group_id: productGroupId,
-    name: 'Monthly',
-    price: 999, // $9.99 in cents
-    price_currency: 'usd',
-    recurring_interval: 'month' as const,
-  };
-  const { data: monthlyPrice, error: monthlyError } = await surpay.prices.create(monthlyPriceRequest);
-
-  if (monthlyError) {
-    console.error('Failed to create monthly price:', monthlyError.message);
-    process.exit(1);
-  }
-  console.log('Monthly price created:', monthlyPrice.product_price_id);
-
-  // Yearly price (with discount)
-  const yearlyPriceRequest = {
-    project_id: projectId,
-    product_group_id: productGroupId,
-    name: 'Yearly',
-    price: 9900, // $99/year (save ~17%)
-    price_currency: 'usd',
-    recurring_interval: 'year' as const,
-  };
-  const { data: yearlyPrice, error: yearlyError } = await surpay.prices.create(yearlyPriceRequest);
-
-  if (yearlyError) {
-    console.error('Failed to create yearly price:', yearlyError.message);
-    process.exit(1);
-  }
-  console.log('Yearly price created:', yearlyPrice.product_price_id);
-
-  // =========================================================================
-  // 3. Interactive CLI - List Prices and Create Checkout
+  // List Existing Prices
   // =========================================================================
   console.log('\n' + '='.repeat(50));
-  console.log('PRICES');
+  console.log('EXISTING PRICES');
   console.log('='.repeat(50));
 
   const { data: productsWithPrices, error: pricesError } = await surpay.products.listWithPrices(projectId);
 
   const allPrices: Array<{ price: any; product: any; index: number }> = [];
+  const createdThisSession: Array<{ name: string; id: string; amount: number; currency: string; interval?: string }> = [];
 
   if (pricesError || !productsWithPrices || productsWithPrices.length === 0) {
     console.log('No existing prices found in the project.');
+    console.log('You can create sample prices or custom prices from the menu below.\n');
   } else {
     let priceIndex = 1;
     for (const productWithPrices of productsWithPrices) {
@@ -188,40 +129,121 @@ async function main() {
     console.log(`\nTotal prices: ${allPrices.length}`);
   }
 
+  // =========================================================================
+  // Interactive CLI Menu
+  // =========================================================================
   console.log('\n' + '='.repeat(50));
   console.log('What would you like to do?');
   console.log('='.repeat(50));
-  console.log('1. Checkout an existing price');
-  console.log('2. Create a new price and checkout');
-  console.log('3. Only pull data (skip checkout)');
+  console.log('1. Checkout an existing price' + (allPrices.length > 0 ? '' : ' (no prices available)'));
+  console.log('2. Create sample product + prices (Pro Plan with Monthly/Yearly)');
+  console.log('3. Create custom product + price and checkout');
+  console.log('4. Only pull data (skip checkout)');
 
-  const choice = await rl.question('\nEnter your choice (1-3): ');
+  const choice = await rl.question('\nEnter your choice (1-4): ');
 
-  if (choice === '1' && allPrices.length > 0) {
-    const priceChoice = await rl.question(`\nEnter price number (1-${allPrices.length}): `);
-    const selectedIndex = parseInt(priceChoice, 10) - 1;
-
-    if (selectedIndex >= 0 && selectedIndex < allPrices.length) {
-      const selected = allPrices[selectedIndex];
-      console.log(`\nCreating checkout for: ${selected.price.name || 'Unnamed'}`);
-
-      const { data: checkout, error: checkoutError } = await surpay.checkout.create({
-        product_id: selected.product.product_id,
-        price_id: selected.price.id,
-        success_url: 'https://localhost:8090/success',
-        cancel_url: 'https://localhost:8090/cancel',
-      });
-
-      if (checkoutError) {
-        console.error('Failed to create checkout:', checkoutError.message);
-      } else {
-        console.log('Checkout URL:', checkout.checkout_url);
-        console.log('Session ID:', checkout.session_id);
-      }
+  if (choice === '1') {
+    if (allPrices.length === 0) {
+      console.log('\nNo prices available. Please create prices first (options 2 or 3).');
     } else {
-      console.log('Invalid selection.');
+      const priceChoice = await rl.question(`\nEnter price number (1-${allPrices.length}): `);
+      const selectedIndex = parseInt(priceChoice, 10) - 1;
+
+      if (selectedIndex >= 0 && selectedIndex < allPrices.length) {
+        const selected = allPrices[selectedIndex];
+        console.log(`\nCreating checkout for: ${selected.price.name || 'Unnamed'}`);
+
+        const { data: checkout, error: checkoutError } = await surpay.checkout.create({
+          product_id: selected.product.id,
+          price_id: selected.price.id,
+          success_url: 'https://localhost:8090/success',
+          cancel_url: 'https://localhost:8090/cancel',
+        });
+
+        if (checkoutError) {
+          console.error('Failed to create checkout:', checkoutError.message);
+        } else {
+          console.log('Checkout URL:', checkout.checkout_url);
+          console.log('Session ID:', checkout.session_id);
+        }
+      } else {
+        console.log('Invalid selection.');
+      }
     }
   } else if (choice === '2') {
+    // Create sample product + prices (Pro Plan)
+    const sampleTimestamp = Date.now();
+    const sampleProductGroupId = crypto.randomUUID();
+
+    console.log('\nCreating sample product (Pro Plan)...');
+    const { data: sampleProduct, error: sampleProductError } = await surpay.products.create({
+      project_id: projectId,
+      product_group_id: sampleProductGroupId,
+      name: `Pro Plan ${sampleTimestamp}`,
+      slug: `pro-plan-${sampleTimestamp}`,
+      description: 'Full access to all features',
+    });
+
+    if (sampleProductError) {
+      console.error('Failed to create sample product:', sampleProductError.message);
+    } else {
+      console.log('Sample product created:', sampleProduct.product_id);
+
+      // Monthly price
+      console.log('\nCreating monthly price...');
+      const monthlyPriceRequest = {
+        project_id: projectId,
+        product_group_id: sampleProductGroupId,
+        name: 'Monthly',
+        price: 999, // $9.99 in cents
+        price_currency: 'usd',
+        recurring_interval: 'month' as const,
+      };
+      const { data: monthlyPrice, error: monthlyError } = await surpay.prices.create(monthlyPriceRequest);
+
+      if (monthlyError) {
+        console.error('Failed to create monthly price:', monthlyError.message);
+      } else {
+        console.log('Monthly price created:', monthlyPrice.product_price_id);
+        createdThisSession.push({
+          name: monthlyPriceRequest.name,
+          id: monthlyPrice.product_price_id,
+          amount: monthlyPriceRequest.price,
+          currency: monthlyPriceRequest.price_currency,
+          interval: monthlyPriceRequest.recurring_interval,
+        });
+      }
+
+      // Yearly price (with discount)
+      console.log('Creating yearly price...');
+      const yearlyPriceRequest = {
+        project_id: projectId,
+        product_group_id: sampleProductGroupId,
+        name: 'Yearly',
+        price: 9900, // $99/year (save ~17%)
+        price_currency: 'usd',
+        recurring_interval: 'year' as const,
+      };
+      const { data: yearlyPrice, error: yearlyError } = await surpay.prices.create(yearlyPriceRequest);
+
+      if (yearlyError) {
+        console.error('Failed to create yearly price:', yearlyError.message);
+      } else {
+        console.log('Yearly price created:', yearlyPrice.product_price_id);
+        createdThisSession.push({
+          name: yearlyPriceRequest.name,
+          id: yearlyPrice.product_price_id,
+          amount: yearlyPriceRequest.price,
+          currency: yearlyPriceRequest.price_currency,
+          interval: yearlyPriceRequest.recurring_interval,
+        });
+      }
+
+      console.log('\nSample product + prices created successfully!');
+      console.log('You can now select option 1 to checkout with any price.');
+    }
+  } else if (choice === '3') {
+    // Create custom product + price and checkout
     const priceType = await rl.question('\nPrice type (recurring/one-time): ');
     const amountInput = await rl.question('Price amount in dollars (e.g., 9.99): ');
     const amountCents = Math.round(parseFloat(amountInput) * 100);
@@ -250,10 +272,11 @@ async function main() {
       console.log('Product created:', newProduct.product_id);
 
       console.log('Creating new price...');
+      const priceName = priceType === 'recurring' ? `Recurring $${amountInput}` : `One-time $${amountInput}`;
       const { data: newPrice, error: newPriceError } = await surpay.prices.create({
         project_id: projectId,
         product_group_id: newProductGroupId,
-        name: priceType === 'recurring' ? `Recurring $${amountInput}` : `One-time $${amountInput}`,
+        name: priceName,
         price: amountCents,
         price_currency: 'usd',
         ...(interval && { recurring_interval: interval }),
@@ -263,6 +286,13 @@ async function main() {
         console.error('Failed to create price:', newPriceError.message);
       } else {
         console.log('Price created:', newPrice.product_price_id);
+        createdThisSession.push({
+          name: priceName,
+          id: newPrice.product_price_id,
+          amount: amountCents,
+          currency: 'usd',
+          interval: interval,
+        });
 
         console.log('\nCreating checkout session...');
         const { data: checkout, error: checkoutError } = await surpay.checkout.create({
@@ -280,10 +310,10 @@ async function main() {
         }
       }
     }
-  } else if (choice === '3') {
+  } else if (choice === '4') {
     console.log('\nSkipping checkout, displaying data only...');
   } else {
-    console.log('\nInvalid choice or no prices available. Skipping checkout...');
+    console.log('\nInvalid choice. Skipping checkout...');
   }
 
   rl.close();
@@ -414,15 +444,17 @@ async function main() {
 
   if (allPricesError) {
     console.log(`Failed to list prices: ${allPricesError.message}`);
-    console.log('Displaying prices created in this session:\n');
-    console.log(`  - ${monthlyPriceRequest.name}`);
-    console.log(`    Amount: $${(monthlyPriceRequest.price / 100).toFixed(2)} ${monthlyPriceRequest.price_currency.toUpperCase()}`);
-    console.log(`    Interval: ${monthlyPriceRequest.recurring_interval}`);
-    console.log(`    ID: ${monthlyPrice.product_price_id}`);
-    console.log(`  - ${yearlyPriceRequest.name}`);
-    console.log(`    Amount: $${(yearlyPriceRequest.price / 100).toFixed(2)} ${yearlyPriceRequest.price_currency.toUpperCase()}`);
-    console.log(`    Interval: ${yearlyPriceRequest.recurring_interval}`);
-    console.log(`    ID: ${yearlyPrice.product_price_id}`);
+    if (createdThisSession.length > 0) {
+      console.log('\nPrices created in this session:\n');
+      for (const price of createdThisSession) {
+        console.log(`  - ${price.name}`);
+        console.log(`    Amount: $${(price.amount / 100).toFixed(2)} ${price.currency.toUpperCase()}`);
+        if (price.interval) {
+          console.log(`    Interval: ${price.interval}`);
+        }
+        console.log(`    ID: ${price.id}`);
+      }
+    }
   } else {
     let totalPrices = 0;
     for (const productWithPrices of allProductsWithPrices) {
@@ -446,6 +478,18 @@ async function main() {
             console.log(`      ID: ${price.id}`);
           }
         }
+      }
+    }
+
+    if (createdThisSession.length > 0) {
+      console.log('\nPrices created in this session:\n');
+      for (const price of createdThisSession) {
+        console.log(`  - ${price.name}`);
+        console.log(`    Amount: $${(price.amount / 100).toFixed(2)} ${price.currency.toUpperCase()}`);
+        if (price.interval) {
+          console.log(`      Interval: ${price.interval}`);
+        }
+        console.log(`    ID: ${price.id}`);
       }
     }
   }

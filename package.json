@@ -1,6 +1,6 @@
 {
   "name": "surpay",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Official Surpay SDK for TypeScript/JavaScript",
   "type": "module",
   "main": "dist/index.js",
@@ -12,7 +12,9 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsc",
@@ -31,7 +33,7 @@
     "stripe",
     "sdk"
   ],
-  "author": "",
+  "author": "Surgent",
   "license": "MIT",
   "devDependencies": {
     "typescript": "^5.3.0",
@@ -39,6 +41,14 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/surgent-dev/surpay-sdk-ts.git"
+  },
+  "homepage": "https://github.com/surgent-dev/surpay-sdk-ts#readme",
+  "bugs": {
+    "url": "https://github.com/surgent-dev/surpay-sdk-ts/issues"
   },
   "publishConfig": {
     "access": "public"

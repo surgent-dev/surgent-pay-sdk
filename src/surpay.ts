@@ -90,7 +90,7 @@ export class Surpay extends SurpayClient {
       this.post<CreateProjectResponse>('/project', params),
 
     list: () =>
-      this.get<Project[]>('/project'),
+      this.get<Project[]>('/projects'),
   };
 
   accounts = {
