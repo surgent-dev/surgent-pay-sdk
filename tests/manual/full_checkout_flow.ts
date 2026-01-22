@@ -36,9 +36,40 @@ async function main() {
 
   let projectId: string;
 
-  if (projects.length === 0) {
-    // No projects exist, create a new one
-    console.log('No existing projects found. Creating a new project...');
+  // Ensure projects is always an array
+  const projectList = Array.isArray(projects) ? projects : [];
+
+  // Always display the menu, even when no projects exist
+  console.log('='.repeat(50));
+  console.log('SELECT A PROJECT');
+  console.log('='.repeat(50));
+
+  if (projectList.length === 0) {
+    console.log('No existing projects found.');
+  } else {
+    for (let i = 0; i < projectList.length; i++) {
+      const p = projectList[i];
+      console.log(`[${i + 1}] ${p.name} (ID: ${p.id})`);
+    }
+  }
+  console.log(`[${projectList.length + 1}] Create a new project`);
+
+  const projectChoice = await rl.question('\nEnter your choice: ');
+  const selectedIndex = parseInt(projectChoice, 10) - 1;
+
+  // Validate numeric input (NaN check)
+  if (isNaN(selectedIndex) || selectedIndex < 0) {
+    console.log('Invalid selection. Exiting.');
+    process.exit(1);
+  }
+
+  if (selectedIndex < projectList.length) {
+    // User selected an existing project
+    projectId = projectList[selectedIndex].id;
+    console.log(`\nSelected project: ${projectList[selectedIndex].name}`);
+  } else if (selectedIndex === projectList.length) {
+    // User chose to create a new project
+    console.log('\nCreating new project...');
     const { data: project, error: projectError } = await surpay.projects.create({
       name: `Test Project ${timestamp}`,
       slug: `test-project-${timestamp}`,
@@ -52,42 +83,8 @@ async function main() {
     projectId = project.id;
     console.log('New project created:', projectId);
   } else {
-    // Display existing projects as a numbered menu
-    console.log('='.repeat(50));
-    console.log('SELECT A PROJECT');
-    console.log('='.repeat(50));
-    for (let i = 0; i < projects.length; i++) {
-      const p = projects[i];
-      console.log(`[${i + 1}] ${p.name} (ID: ${p.id})`);
-    }
-    console.log(`[${projects.length + 1}] Create a new project`);
-
-    const choice = await rl.question('\nEnter your choice: ');
-    const selectedIndex = parseInt(choice, 10) - 1;
-
-    if (selectedIndex >= 0 && selectedIndex < projects.length) {
-      // User selected an existing project
-      projectId = projects[selectedIndex].id;
-      console.log(`\nSelected project: ${projects[selectedIndex].name}`);
-    } else if (selectedIndex === projects.length) {
-      // User chose to create a new project
-      console.log('\nCreating new project...');
-      const { data: project, error: projectError } = await surpay.projects.create({
-        name: `Test Project ${timestamp}`,
-        slug: `test-project-${timestamp}`,
-      });
-
-      if (projectError) {
-        console.error('Failed to create project:', projectError.message);
-        process.exit(1);
-      }
-
-      projectId = project.id;
-      console.log('New project created:', projectId);
-    } else {
-      console.log('Invalid selection. Exiting.');
-      process.exit(1);
-    }
+    console.log('Invalid selection. Exiting.');
+    process.exit(1);
   }
 
   // =========================================================================

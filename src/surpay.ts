@@ -89,8 +89,15 @@ export class Surpay extends SurpayClient {
     create: (params: CreateProjectRequest) =>
       this.post<CreateProjectResponse>('/project', params),
 
-    list: () =>
-      this.get<Project[]>('/projects'),
+    list: async () => {
+      const result = await this.get<Project[] | { projects: Project[] }>('/projects');
+      if (result.error) {
+        return result;
+      }
+      // Normalize wrapped response: { projects: [...] } -> [...]
+      const data = Array.isArray(result.data) ? result.data : (result.data as { projects: Project[] }).projects || [];
+      return { data, error: null, statusCode: result.statusCode };
+    },
   };
 
   accounts = {
