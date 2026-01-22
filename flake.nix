@@ -21,6 +21,7 @@
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             bun
+            nodejs_25
           ];
 
           shellHook = ''
