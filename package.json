@@ -18,9 +18,10 @@
   ],
   "scripts": {
     "build": "tsc",
+    "prebuild": "bun install",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "prepublishOnly": "bun run clean && bun run build",
+    "prepublishOnly": "bun install && bun run clean && bun run build",
     "changeset": "bunx changeset",
     "changeset:version": "bunx changeset version",
     "changeset:release": "bunx changeset publish"
