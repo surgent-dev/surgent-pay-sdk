@@ -1,11 +1,11 @@
 /**
  * Surpay Client
- * 
+ *
  * Main SDK client for tenant-level operations.
  * Uses grouped method namespaces (Autumn pattern).
  */
 
-import { SurpayClient } from './client.js';
+import { SurpayClient } from './client.js'
 import type {
   SurpayConfig,
   Customer,
@@ -21,93 +21,74 @@ import type {
   CreateCheckoutResponse,
   Subscription,
   Transaction,
-  CreateProjectRequest,
-  CreateProjectResponse,
   Project,
   ConnectAccountRequest,
   ConnectAccountResponse,
   ConnectedAccount,
-} from './types.js';
+} from './types.js'
 
 export class Surpay extends SurpayClient {
   constructor(options?: SurpayConfig) {
-    const envApiKey = typeof process !== 'undefined' ? process.env.SURPAY_API_KEY : undefined;
-    const apiKey = options?.apiKey || envApiKey || '';
-    const baseUrl = options?.baseUrl;
+    const envApiKey = typeof process !== 'undefined' ? process.env.SURPAY_API_KEY : undefined
+    const apiKey = options?.apiKey || envApiKey || ''
+    const baseUrl = options?.baseUrl
 
     if (!apiKey) {
-      throw new Error('Surpay API key is required. Pass it via options or set SURPAY_API_KEY env var.');
+      throw new Error('Surpay API key is required. Pass it via options or set SURPAY_API_KEY env var.')
     }
 
-    if (!apiKey.startsWith('sp_org_')) {
-      throw new Error('Invalid API key format. Tenant keys must start with sp_org_');
-    }
-
-    super({ apiKey, baseUrl });
+    super({ apiKey, baseUrl })
   }
 
   customers = {
-    list: (projectId: string) =>
-      this.get<Customer[]>(`/project/${projectId}/customers`),
+    list: (projectId: string) => this.get<Customer[]>(`/project/${projectId}/customers`),
 
     get: (projectId: string, customerId: string) =>
       this.get<CustomerWithDetails>(`/project/${projectId}/customer/${customerId}`),
-  };
+  }
 
   products = {
-    create: (params: CreateProductRequest) =>
-      this.post<CreateProductResponse>('/product', params),
+    create: (params: CreateProductRequest) => this.post<CreateProductResponse>('/product', params),
 
     update: (productId: string, params: UpdateProductRequest) =>
       this.put<UpdateProductResponse>(`/product/${productId}`, params),
 
-    listWithPrices: (projectId: string) =>
-      this.get<ProductWithPrices[]>(`/project/${projectId}/product/prices`),
-  };
+    listWithPrices: (projectId: string) => this.get<ProductWithPrices[]>(`/project/${projectId}/product/prices`),
+  }
 
   prices = {
-    create: (params: CreatePriceRequest) =>
-      this.post<CreatePriceResponse>('/product/price', params),
-  };
+    create: (params: CreatePriceRequest) => this.post<CreatePriceResponse>('/product/price', params),
+  }
 
   checkout = {
-    create: (params: CreateCheckoutRequest) =>
-      this.post<CreateCheckoutResponse>('/checkout', params),
-  };
+    create: (params: CreateCheckoutRequest) => this.post<CreateCheckoutResponse>('/checkout', params),
+  }
 
   subscriptions = {
-    list: (projectId: string) =>
-      this.get<Subscription[]>(`/project/${projectId}/subscriptions`),
-  };
+    list: (projectId: string) => this.get<Subscription[]>(`/project/${projectId}/subscriptions`),
+  }
 
   transactions = {
-    list: (projectId: string) =>
-      this.get<Transaction[]>(`/project/${projectId}/transactions`),
-  };
+    list: (projectId: string) => this.get<Transaction[]>(`/project/${projectId}/transactions`),
+  }
 
   projects = {
-    create: (params: CreateProjectRequest) =>
-      this.post<CreateProjectResponse>('/project', params),
-
     list: async () => {
-      const result = await this.get<Project[] | { projects: Project[] }>('/projects');
+      const result = await this.get<Project[] | { projects: Project[] }>('/projects')
       if (result.error) {
-        return result;
+        return result
       }
       // Normalize wrapped response: { projects: [...] } -> [...]
-      const data = Array.isArray(result.data) ? result.data : (result.data as { projects: Project[] }).projects || [];
-      return { data, error: null, statusCode: result.statusCode };
+      const data = Array.isArray(result.data) ? result.data : (result.data as { projects: Project[] }).projects || []
+      return { data, error: null, statusCode: result.statusCode }
     },
-  };
+  }
 
   accounts = {
-    connect: (params: ConnectAccountRequest) =>
-      this.post<ConnectAccountResponse>('/accounts/connect', params),
+    connect: (params: ConnectAccountRequest) => this.post<ConnectAccountResponse>('/accounts/connect', params),
 
-    get: (accountId: string) =>
-      this.get<ConnectedAccount>(`/accounts/${accountId}`),
+    get: (accountId: string) => this.get<ConnectedAccount>(`/accounts/${accountId}`),
 
-    list: () =>
-      this.get<ConnectedAccount[]>('/accounts'),
-  };
+    list: () => this.get<ConnectedAccount[]>('/accounts'),
+  }
 }

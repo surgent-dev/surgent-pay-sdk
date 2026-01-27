@@ -1,14 +1,14 @@
 /**
  * Surpay SDK
- * 
+ *
  * Official TypeScript/JavaScript SDK for the Surpay payment platform.
- * 
+ *
  * @example
  * ```typescript
  * import { Surpay } from 'surpay'
- * 
- * const surpay = new Surpay({ apiKey: 'sp_org_xxx' })
- * 
+ *
+ * const surpay = new Surpay({ apiKey: 'xKmZqWpNrTsYvBcDfGhJkLmNpQrStUvWxYzAbCdEfGhJkLmNpQrStUvWxYzAbCd' })
+ *
  * // Create a checkout session
  * const { data, error } = await surpay.checkout.create({
  *   product_id: 'prod_xxx',
@@ -16,23 +16,22 @@
  *   success_url: 'https://myapp.com/success',
  *   cancel_url: 'https://myapp.com/cancel',
  * })
- * 
+ *
  * if (error) {
  *   console.error(error.message, error.code)
  *   return
  * }
- * 
+ *
  * // Redirect user to checkout
  * console.log(data.checkout_url)
  * ```
  */
 
-// Main clients
-export { Surpay } from './surpay.js';
-export { SurpayAdmin } from './surpay-admin.js';
+// Main client
+export { Surpay } from './surpay.js'
 
 // Error handling
-export { SurpayError, isSurpayError } from './errors.js';
+export { SurpayError, isSurpayError } from './errors.js'
 
 // All types
 export type {
@@ -43,7 +42,6 @@ export type {
 
   // Config
   SurpayConfig,
-  SurpayAdminConfig,
 
   // Enums
   SubscriptionStatus,
@@ -51,14 +49,9 @@ export type {
   TransactionType,
   CheckoutStatus,
   CheckoutMode,
-
-  // Organization
-  CreateOrganizationRequest,
-  CreateOrganizationResponse,
+  PayoutStatus,
 
   // Project
-  CreateProjectRequest,
-  CreateProjectResponse,
   Project,
 
   // Customer
@@ -94,4 +87,4 @@ export type {
   ConnectAccountRequest,
   ConnectAccountResponse,
   ConnectedAccount,
-} from './types.js';
+} from './types.js'
