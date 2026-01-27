@@ -19,6 +19,8 @@ import type {
   CreatePriceResponse,
   CreateCheckoutRequest,
   CreateCheckoutResponse,
+  CheckRequest,
+  CheckResponse,
   Subscription,
   Transaction,
   Project,
@@ -63,6 +65,8 @@ export class Surpay extends SurpayClient {
   checkout = {
     create: (params: CreateCheckoutRequest) => this.post<CreateCheckoutResponse>('/checkout', params),
   }
+
+  check = (params: CheckRequest) => this.post<CheckResponse>('/check', params)
 
   subscriptions = {
     list: (projectId: string) => this.get<Subscription[]>(`/project/${projectId}/subscriptions`),

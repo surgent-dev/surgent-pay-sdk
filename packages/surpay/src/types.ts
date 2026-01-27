@@ -167,14 +167,32 @@ export interface ProductWithPrices {
 
 export interface CreateCheckoutRequest {
   product_id: string
-  price_id: string
-  success_url: string
-  cancel_url: string
+  price_id?: string
+  success_url?: string
+  cancel_url?: string
+  customer_id: string
+  customer_data?: {
+    email?: string
+    name?: string
+  }
 }
 
 export interface CreateCheckoutResponse {
   checkout_url: string
-  session_id: string
+  customer_id: string
+}
+
+// ============================================================================
+// Check
+// ============================================================================
+
+export interface CheckRequest {
+  customer_id: string
+  product_id: string
+}
+
+export interface CheckResponse {
+  allowed: boolean
 }
 
 // ============================================================================

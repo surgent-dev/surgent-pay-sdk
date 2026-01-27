@@ -3,14 +3,22 @@
  */
 import { v, Infer } from "convex/values";
 
-// CreateCheckoutRequest: product_id, price_id, success_url, cancel_url (all required)
+// CreateCheckoutArgs: product_id required, price_id/URLs optional
+// Note: customer_id is NOT here - it's injected by the wrapper via identify()
 export const CreateCheckoutArgs = v.object({
   product_id: v.string(),
-  price_id: v.string(),
-  success_url: v.string(),
-  cancel_url: v.string(),
+  price_id: v.optional(v.string()),
+  success_url: v.optional(v.string()),
+  cancel_url: v.optional(v.string()),
 });
 export type CreateCheckoutArgs = Infer<typeof CreateCheckoutArgs>;
+
+// CheckArgs: product_id required
+// Note: customer_id is NOT here - it's injected by the wrapper via identify()
+export const CheckArgs = v.object({
+  product_id: v.string(),
+});
+export type CheckArgs = Infer<typeof CheckArgs>;
 
 // ListSubscriptions: requires project_id
 export const ListSubscriptionsArgs = v.object({

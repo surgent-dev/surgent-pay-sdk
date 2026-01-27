@@ -26,6 +26,7 @@ import { actionGeneric } from "convex/server";
 import { Surpay as SurpayClient } from "@surgent-dev/surpay";
 import {
   CreateCheckoutArgs,
+  CheckArgs,
   GetCustomerArgs,
   ListCustomersArgs,
   ListSubscriptionsArgs,
@@ -103,15 +104,25 @@ export class Surpay {
         args: CreateCheckoutArgs,
         handler: async (ctx, args) => {
           const { client, identifierOpts } = await this.getAuthParams({ ctx });
-          // Merge customer info from auth context with checkout args
-          const checkoutParams = {
-            ...args,
-            customer_id: identifierOpts!.customerId,
-            customer_name: identifierOpts!.customerData?.name,
-            customer_email: identifierOpts!.customerData?.email,
-          };
           return wrapSdkCall(() =>
-            client.checkout.create(checkoutParams as Parameters<typeof client.checkout.create>[0])
+            client.checkout.create({
+              ...args,
+              customer_id: identifierOpts!.customerId,
+              customer_data: identifierOpts!.customerData,
+            })
+          );
+        },
+      }),
+
+      check: actionGeneric({
+        args: CheckArgs,
+        handler: async (ctx, args) => {
+          const { client, identifierOpts } = await this.getAuthParams({ ctx });
+          return wrapSdkCall(() =>
+            client.check({
+              product_id: args.product_id,
+              customer_id: identifierOpts!.customerId,
+            })
           );
         },
       }),

@@ -77,6 +77,10 @@ export type {
   CreateCheckoutRequest,
   CreateCheckoutResponse,
 
+  // Check
+  CheckRequest,
+  CheckResponse,
+
   // Transaction
   Transaction,
 
