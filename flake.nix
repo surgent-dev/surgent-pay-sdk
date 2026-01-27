@@ -23,11 +23,6 @@
             bun
             nodejs_25
           ];
-
-          shellHook = ''
-            export SHELL=${pkgs.zsh}/bin/zsh
-            exec $SHELL
-          '';
         };
       }
     );

@@ -38,3 +38,6 @@ docs/plans/
 
 # reference code
 reference/
+
+# nixos direnv
+.direnv/
