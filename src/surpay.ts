@@ -90,5 +90,7 @@ export class Surpay extends SurpayClient {
     get: (accountId: string) => this.get<ConnectedAccount>(`/accounts/${accountId}`),
 
     list: () => this.get<ConnectedAccount[]>('/accounts'),
+
+    delete: (accountId: string) => this.delete<void>(`/accounts/${accountId}`),
   }
 }
