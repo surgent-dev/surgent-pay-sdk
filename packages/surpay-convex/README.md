@@ -17,10 +17,19 @@ import { Surpay } from "@surgent-dev/surpay-convex";
 
 const surpay = new Surpay({
   apiKey: process.env.SURPAY_API_KEY!,
+  identify: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+    return {
+      customerId: identity.subject,
+      customerData: { name: identity.name, email: identity.email },
+    };
+  },
 });
 
 export const {
   createCheckout,
+  check,
   getCustomer,
   listCustomers,
   listSubscriptions,
@@ -53,6 +62,20 @@ if (error) {
 }
 ```
 
+### Check Access
+
+```typescript
+import { api } from "./_generated/api";
+
+const { data, error } = await ctx.runAction(api.surpay.check, {
+  product_id: "prod_123",
+});
+
+if (data?.allowed) {
+  // Allow access
+}
+```
+
 ### Get Customer
 
 ```typescript
@@ -61,6 +84,16 @@ import { api } from "./_generated/api";
 const { data, error } = await ctx.runAction(api.surpay.getCustomer, {
   project_id: "proj_123",
   customer_id: "cust_123",
+});
+```
+
+### List Customers
+
+```typescript
+import { api } from "./_generated/api";
+
+const { data, error } = await ctx.runAction(api.surpay.listCustomers, {
+  project_id: "proj_123",
 });
 ```
 
@@ -78,7 +111,8 @@ const { data, error } = await ctx.runAction(api.surpay.listSubscriptions, {
 
 | Action | Args | Returns |
 |--------|------|---------|
-| `createCheckout` | `product_id`, `price_id`, `success_url`, `cancel_url` | `{ checkout_url: string, session_id: string }` |
+| `createCheckout` | `product_id`, `price_id?`, `success_url?`, `cancel_url?` | `{ checkout_url: string, customer_id: string }` |
+| `check` | `product_id` | `{ allowed: boolean }` |
 | `getCustomer` | `project_id`, `customer_id` | `CustomerWithDetails` |
 | `listCustomers` | `project_id` | `Customer[]` |
 | `listSubscriptions` | `project_id` | `Subscription[]` |

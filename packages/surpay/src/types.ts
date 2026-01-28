@@ -300,6 +300,6 @@ export interface ConnectedAccount {
 export interface SurpayConfig {
   /** Your Surpay API key (64 alphabetic characters) */
   apiKey?: string
-  /** Override the base URL (default: https://api.surpay.io) */
+  /** Override the base URL (default: https://pay.surgent.dev) */
   baseUrl?: string
 }

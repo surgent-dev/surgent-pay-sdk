@@ -40,7 +40,7 @@ import { Surpay } from 'surpay'
 
 const surpay = new Surpay({
   apiKey: process.env.SURPAY_API_KEY, // Fallback: SURPAY_API_KEY env var
-  baseUrl: 'https://api.surpay.io', // Optional
+  baseUrl: 'https://pay.surgent.dev', // Optional
 })
 ```
 
@@ -136,11 +136,27 @@ Create hosted checkout sessions.
 const { data } = await surpay.checkout.create({
   product_id: 'prod_123',
   price_id: 'price_456',
+  customer_id: 'cust_123',
   success_url: 'https://example.com/success',
   cancel_url: 'https://example.com/cancel',
 })
 
 console.log(data.checkout_url)
+```
+
+### Check
+
+Verify if a customer has access to a specific product.
+
+```typescript
+const { data } = await surpay.check({
+  customer_id: 'cust_123',
+  product_id: 'prod_123',
+})
+
+if (data.allowed) {
+  console.log('Customer has access')
+}
 ```
 
 ### Customers
@@ -188,4 +204,7 @@ const { data: account } = await surpay.accounts.get('acc_123')
 
 // List connected accounts
 const { data: accounts } = await surpay.accounts.list()
+
+// Delete/Disconnect an account
+await surpay.accounts.delete('acc_123')
 ```

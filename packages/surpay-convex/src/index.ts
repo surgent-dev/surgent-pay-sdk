@@ -74,9 +74,11 @@ export class Surpay {
 
   constructor(config: SurpayConfig) {
     this.options = config;
+    const g = globalThis as { process?: { env: Record<string, string | undefined> } };
+    const envBaseUrl = g.process?.env.SURPAY_BASE_URL;
     this.client = new SurpayClient({
       apiKey: config.apiKey,
-      baseUrl: config.baseUrl,
+      baseUrl: config.baseUrl ?? envBaseUrl,
     });
   }
 

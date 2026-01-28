@@ -1,6 +1,6 @@
 {
   "name": "@surgent-dev/surpay",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Official Surpay SDK for TypeScript/JavaScript",
   "type": "module",
   "main": "dist/index.js",

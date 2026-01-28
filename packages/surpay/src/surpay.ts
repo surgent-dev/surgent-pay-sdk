@@ -32,8 +32,9 @@ import type {
 export class Surpay extends SurpayClient {
   constructor(options?: SurpayConfig) {
     const envApiKey = typeof process !== 'undefined' ? process.env.SURPAY_API_KEY : undefined
+    const envBaseUrl = typeof process !== 'undefined' ? process.env.SURPAY_BASE_URL : undefined
     const apiKey = options?.apiKey || envApiKey || ''
-    const baseUrl = options?.baseUrl
+    const baseUrl = options?.baseUrl ?? envBaseUrl
 
     if (!apiKey) {
       throw new Error('Surpay API key is required. Pass it via options or set SURPAY_API_KEY env var.')
