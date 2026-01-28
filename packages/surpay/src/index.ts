@@ -33,6 +33,9 @@ export { Surpay } from './surpay.js'
 // Error handling
 export { SurpayError, isSurpayError } from './errors.js'
 
+// Utilities
+export { camelToSnake } from './utils/case.js'
+
 // All types
 export type {
   // Result pattern
@@ -42,6 +45,7 @@ export type {
 
   // Config
   SurpayConfig,
+  ResponseCase,
 
   // Enums
   SubscriptionStatus,

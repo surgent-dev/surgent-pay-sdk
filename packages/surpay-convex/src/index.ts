@@ -23,7 +23,7 @@
  * ```
  */
 import { actionGeneric } from "convex/server";
-import { Surpay as SurpayClient } from "@surgent-dev/surpay";
+import { Surpay as SurpayClient, ResponseCase } from "@surgent-dev/surpay";
 import {
   CreateCheckoutArgs,
   CheckArgs,
@@ -40,6 +40,14 @@ export type IdentifierOpts = {
 export type SurpayConfig = {
   apiKey: string;
   baseUrl?: string;
+  /**
+   * Response key case format.
+   * - 'snake' (default): snake_case keys to match Convex validators
+   * - 'camel': camelCase keys from API responses
+   *
+   * Defaults to 'snake' for Convex validator compatibility.
+   */
+  responseCase?: ResponseCase;
   identify: (ctx: any) => Promise<IdentifierOpts | null>;
 };
 
@@ -79,6 +87,8 @@ export class Surpay {
     this.client = new SurpayClient({
       apiKey: config.apiKey,
       baseUrl: config.baseUrl ?? envBaseUrl,
+      // Default to snake_case for Convex validator compatibility
+      responseCase: config.responseCase ?? "snake",
     });
   }
 
@@ -160,3 +170,4 @@ export class Surpay {
 }
 
 export * from "./types.js";
+export type { ResponseCase } from "@surgent-dev/surpay";

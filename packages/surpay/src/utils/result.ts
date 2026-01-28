@@ -1,13 +1,33 @@
 import { SurpayError } from '../errors.js'
-import type { Result } from '../types.js'
+import type { ResponseCase, Result } from '../types.js'
+import { camelToSnake } from './case.js'
+
+/**
+ * Options for response processing.
+ */
+export interface ToResultOptions {
+  /**
+   * Response key case format.
+   * - 'snake' (default): Transform camelCase keys to snake_case
+   * - 'camel': Keep original camelCase keys
+   */
+  responseCase?: ResponseCase
+}
 
 /**
  * Converts a fetch Response into a Result container.
  *
  * - Success (2xx): { data: T, error: null, statusCode }
  * - Failure (non-2xx): { data: null, error: SurpayError, statusCode }
+ *
+ * When responseCase is 'snake' (default), transforms camelCase API response keys
+ * to snake_case to match the SDK's TypeScript type definitions.
  */
-export const toResult = async <T>(response: Response): Promise<Result<T, SurpayError>> => {
+export const toResult = async <T>(
+  response: Response,
+  options: ToResultOptions = {}
+): Promise<Result<T, SurpayError>> => {
+  const { responseCase = 'snake' } = options
   const statusCode = response.status
 
   if (statusCode < 200 || statusCode >= 300) {
@@ -40,7 +60,11 @@ export const toResult = async <T>(response: Response): Promise<Result<T, SurpayE
     return { data: {} as T, error: null, statusCode }
   }
 
-  const data = JSON.parse(text) as T
+  const parsed = JSON.parse(text)
+
+  // Normalize response keys to snake_case if configured (default behavior)
+  const data = responseCase === 'snake' ? camelToSnake<T>(parsed) : (parsed as T)
+
   return { data, error: null, statusCode }
 }
 

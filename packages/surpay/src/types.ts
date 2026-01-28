@@ -297,9 +297,22 @@ export interface ConnectedAccount {
 // SDK Configuration
 // ============================================================================
 
+/**
+ * Response case format for API responses.
+ * - 'snake': Transform camelCase keys to snake_case (default, matches TypeScript types)
+ * - 'camel': Keep original camelCase keys from API
+ */
+export type ResponseCase = 'snake' | 'camel'
+
 export interface SurpayConfig {
   /** Your Surpay API key (64 alphabetic characters) */
   apiKey?: string
   /** Override the base URL (default: https://pay.surgent.dev) */
   baseUrl?: string
+  /**
+   * Response key case format.
+   * - 'snake' (default): Transform API responses from camelCase to snake_case to match TypeScript types
+   * - 'camel': Keep original camelCase keys from API responses
+   */
+  responseCase?: ResponseCase
 }

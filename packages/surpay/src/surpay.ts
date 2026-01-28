@@ -40,7 +40,7 @@ export class Surpay extends SurpayClient {
       throw new Error('Surpay API key is required. Pass it via options or set SURPAY_API_KEY env var.')
     }
 
-    super({ apiKey, baseUrl })
+    super({ apiKey, baseUrl, responseCase: options?.responseCase })
   }
 
   customers = {
