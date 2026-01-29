@@ -44,10 +44,9 @@ export class Surpay extends SurpayClient {
   }
 
   customers = {
-    list: (projectId: string) => this.get<Customer[]>(`/project/${projectId}/customers`),
+    list: () => this.get<Customer[]>('/customers'),
 
-    get: (projectId: string, customerId: string) =>
-      this.get<CustomerWithDetails>(`/project/${projectId}/customer/${customerId}`),
+    get: (customerId: string) => this.get<CustomerWithDetails>(`/customers/${customerId}`),
   }
 
   products = {
@@ -56,7 +55,7 @@ export class Surpay extends SurpayClient {
     update: (productId: string, params: UpdateProductRequest) =>
       this.put<UpdateProductResponse>(`/product/${productId}`, params),
 
-    listWithPrices: (projectId: string) => this.get<ProductWithPrices[]>(`/project/${projectId}/product/prices`),
+    listWithPrices: () => this.get<ProductWithPrices[]>('/products'),
   }
 
   prices = {
@@ -70,11 +69,11 @@ export class Surpay extends SurpayClient {
   check = (params: CheckRequest) => this.post<CheckResponse>('/check', params)
 
   subscriptions = {
-    list: (projectId: string) => this.get<Subscription[]>(`/project/${projectId}/subscriptions`),
+    list: () => this.get<Subscription[]>('/subscriptions'),
   }
 
   transactions = {
-    list: (projectId: string) => this.get<Transaction[]>(`/project/${projectId}/transactions`),
+    list: () => this.get<Transaction[]>('/transactions'),
   }
 
   projects = {

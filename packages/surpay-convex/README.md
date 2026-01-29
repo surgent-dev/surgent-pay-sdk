@@ -50,6 +50,7 @@ import { api } from "./_generated/api";
 // Inside a Convex action or from client
 const { data, error } = await ctx.runAction(api.surpay.createCheckout, {
   product_id: "prod_123",
+  customer_id: "cust_123", // Optional if using identify()
   price_id: "price_123",
   success_url: "https://example.com/success",
   cancel_url: "https://example.com/cancel",
@@ -69,6 +70,7 @@ import { api } from "./_generated/api";
 
 const { data, error } = await ctx.runAction(api.surpay.check, {
   product_id: "prod_123",
+  customer_id: "cust_123", // Optional if using identify()
 });
 
 if (data?.allowed) {
@@ -82,7 +84,6 @@ if (data?.allowed) {
 import { api } from "./_generated/api";
 
 const { data, error } = await ctx.runAction(api.surpay.getCustomer, {
-  project_id: "proj_123",
   customer_id: "cust_123",
 });
 ```
@@ -92,9 +93,7 @@ const { data, error } = await ctx.runAction(api.surpay.getCustomer, {
 ```typescript
 import { api } from "./_generated/api";
 
-const { data, error } = await ctx.runAction(api.surpay.listCustomers, {
-  project_id: "proj_123",
-});
+const { data, error } = await ctx.runAction(api.surpay.listCustomers, {});
 ```
 
 ### List Subscriptions
@@ -102,17 +101,15 @@ const { data, error } = await ctx.runAction(api.surpay.listCustomers, {
 ```typescript
 import { api } from "./_generated/api";
 
-const { data, error } = await ctx.runAction(api.surpay.listSubscriptions, {
-  project_id: "proj_123",
-});
+const { data, error } = await ctx.runAction(api.surpay.listSubscriptions, {});
 ```
 
 ## API Reference
 
 | Action | Args | Returns |
 |--------|------|---------|
-| `createCheckout` | `product_id`, `price_id?`, `success_url?`, `cancel_url?` | `{ checkout_url: string, customer_id: string }` |
-| `check` | `product_id` | `{ allowed: boolean }` |
-| `getCustomer` | `project_id`, `customer_id` | `CustomerWithDetails` |
-| `listCustomers` | `project_id` | `Customer[]` |
-| `listSubscriptions` | `project_id` | `Subscription[]` |
+| `createCheckout` | `product_id`, `customer_id?`, `price_id?`, `success_url?`, `cancel_url?` | `{ checkout_url: string, customer_id: string }` |
+| `check` | `product_id`, `customer_id?` | `{ allowed: boolean }` |
+| `getCustomer` | `customer_id` | `CustomerWithDetails` |
+| `listCustomers` | - | `Customer[]` |
+| `listSubscriptions` | - | `Subscription[]` |

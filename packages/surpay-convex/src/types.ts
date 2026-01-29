@@ -3,38 +3,33 @@
  */
 import { v, Infer } from "convex/values";
 
-// CreateCheckoutArgs: product_id required, price_id/URLs optional
-// Note: customer_id is NOT here - it's injected by the wrapper via identify()
+// CreateCheckoutArgs: productId required, priceId/URLs optional
+// Note: customerId is NOT here - it's injected by the wrapper via identify()
 export const CreateCheckoutArgs = v.object({
-  product_id: v.string(),
-  price_id: v.optional(v.string()),
-  success_url: v.optional(v.string()),
-  cancel_url: v.optional(v.string()),
+  productId: v.string(),
+  priceId: v.optional(v.string()),
+  successUrl: v.optional(v.string()),
+  cancelUrl: v.optional(v.string()),
 });
 export type CreateCheckoutArgs = Infer<typeof CreateCheckoutArgs>;
 
-// CheckArgs: product_id required
-// Note: customer_id is NOT here - it's injected by the wrapper via identify()
+// CheckArgs: productId required
+// Note: customerId is NOT here - it's injected by the wrapper via identify()
 export const CheckArgs = v.object({
-  product_id: v.string(),
+  productId: v.string(),
 });
 export type CheckArgs = Infer<typeof CheckArgs>;
 
-// ListSubscriptions: requires project_id
-export const ListSubscriptionsArgs = v.object({
-  project_id: v.string(),
-});
+// ListSubscriptions: no args required (project_id from auth context)
+export const ListSubscriptionsArgs = v.object({});
 export type ListSubscriptionsArgs = Infer<typeof ListSubscriptionsArgs>;
 
-// GetCustomer: requires project_id and customer_id
+// GetCustomer: requires customer_id (project_id from auth context)
 export const GetCustomerArgs = v.object({
-  project_id: v.string(),
   customer_id: v.string(),
 });
 export type GetCustomerArgs = Infer<typeof GetCustomerArgs>;
 
-// ListCustomers: requires project_id
-export const ListCustomersArgs = v.object({
-  project_id: v.string(),
-});
+// ListCustomers: no args required (project_id from auth context)
+export const ListCustomersArgs = v.object({});
 export type ListCustomersArgs = Infer<typeof ListCustomersArgs>;

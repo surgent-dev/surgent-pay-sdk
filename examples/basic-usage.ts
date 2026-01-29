@@ -14,15 +14,9 @@ const surpay = new Surpay({
   baseUrl: env.SURPAY_BASE_URL ?? 'http://localhost:8090',
 })
 
-// Projects are created via the Surgent dashboard or worker, not the SDK.
-// Provide your project ID via environment variable or replace the placeholder.
-const projectId = env.SURPAY_PROJECT_ID ?? 'your-project-id'
-
 async function main() {
   // Generate timestamp to avoid conflicts across multiple runs
   const timestamp = Date.now()
-
-  console.log('Using project:', projectId)
 
   // =========================================================================
   // 1. Create a Product
@@ -30,7 +24,6 @@ async function main() {
   console.log('\nCreating product...')
   const productGroupId = crypto.randomUUID()
   const { data: product, error: productError } = await surpay.products.create({
-    project_id: projectId,
     product_group_id: productGroupId,
     name: `Pro Plan ${timestamp}`,
     slug: `pro-plan-${timestamp}`,
@@ -50,7 +43,6 @@ async function main() {
 
   // Monthly price
   const { data: monthlyPrice, error: monthlyError } = await surpay.prices.create({
-    project_id: projectId,
     product_group_id: productGroupId,
     name: 'Monthly',
     price: 999, // $9.99 in cents
@@ -66,7 +58,6 @@ async function main() {
 
   // Yearly price (with discount)
   const { data: yearlyPrice, error: yearlyError } = await surpay.prices.create({
-    project_id: projectId,
     product_group_id: productGroupId,
     name: 'Yearly',
     price: 9900, // $99/year (save ~17%)
@@ -84,7 +75,7 @@ async function main() {
   // 3. List Products with Prices
   // =========================================================================
   console.log('\nListing products with prices...')
-  const { data: productsWithPrices, error: listError } = await surpay.products.listWithPrices(projectId)
+  const { data: productsWithPrices, error: listError } = await surpay.products.listWithPrices()
 
   if (listError) {
     console.error('Failed to list products:', listError.message)
@@ -108,6 +99,7 @@ async function main() {
   const { data: checkout, error: checkoutError } = await surpay.checkout.create({
     product_id: product.product_id,
     price_id: monthlyPrice.product_price_id,
+    customer_id: 'cust_123', // Required
     success_url: 'https://localhost:8090/success',
     cancel_url: 'https://localhost:8090/cancel',
   })
@@ -117,13 +109,13 @@ async function main() {
     process.exit(1)
   }
   console.log('Checkout URL:', checkout.checkout_url)
-  console.log('Session ID:', checkout.session_id)
+  console.log('Customer ID:', checkout.customer_id)
 
   // =========================================================================
   // 5. List Customers (after some have signed up)
   // =========================================================================
   console.log('\nListing customers...')
-  const { data: customers, error: customersError } = await surpay.customers.list(projectId)
+  const { data: customers, error: customersError } = await surpay.customers.list()
 
   if (customersError) {
     console.error('Failed to list customers:', customersError.message)
@@ -133,7 +125,7 @@ async function main() {
 
   if (customers.length > 0) {
     // Get detailed info for first customer
-    const { data: customer, error: customerError } = await surpay.customers.get(projectId, customers[0].id)
+    const { data: customer, error: customerError } = await surpay.customers.get(customers[0].id)
 
     if (customerError) {
       console.error('Failed to get customer:', customerError.message)
@@ -148,7 +140,7 @@ async function main() {
   // 6. List Subscriptions
   // =========================================================================
   console.log('\nListing subscriptions...')
-  const { data: subscriptions, error: subsError } = await surpay.subscriptions.list(projectId)
+  const { data: subscriptions, error: subsError } = await surpay.subscriptions.list()
 
   if (subsError) {
     console.error('Failed to list subscriptions:', subsError.message)
@@ -161,7 +153,7 @@ async function main() {
   // 7. List Transactions
   // =========================================================================
   console.log('\nListing transactions...')
-  const { data: transactions, error: txError } = await surpay.transactions.list(projectId)
+  const { data: transactions, error: txError } = await surpay.transactions.list()
 
   if (txError) {
     console.error('Failed to list transactions:', txError.message)

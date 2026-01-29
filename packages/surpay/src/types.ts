@@ -86,7 +86,6 @@ export interface CustomerWithDetails extends Customer {
 // ============================================================================
 
 export interface CreateProductRequest {
-  project_id: string
   product_group_id: string
   name: string
   description?: string
@@ -132,7 +131,6 @@ export interface Product {
 // ============================================================================
 
 export interface CreatePriceRequest {
-  project_id: string
   product_group_id: string
   name?: string
   description?: string
@@ -265,8 +263,6 @@ export interface Subscription {
 // ============================================================================
 
 export interface ConnectAccountRequest {
-  /** Required for session auth, optional for API key auth */
-  project_id?: string
   processor: string
   account_type?: string
   country?: string

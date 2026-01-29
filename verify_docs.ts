@@ -10,17 +10,15 @@ async function test() {
 
   // Products
   await surpay.products.create({
-    project_id: '123',
     product_group_id: '456',
     name: 'test',
     slug: 'test',
   })
   await surpay.products.update('123', { name: 'test' })
-  await surpay.products.listWithPrices('123')
+  await surpay.products.listWithPrices()
 
   // Prices
   await surpay.prices.create({
-    project_id: '123',
     product_group_id: '456',
     price: 100,
     price_currency: 'usd',
@@ -35,14 +33,14 @@ async function test() {
   })
 
   // Customers
-  await surpay.customers.list('123')
-  await surpay.customers.get('123', '456')
+  await surpay.customers.list()
+  await surpay.customers.get('456')
 
   // Subscriptions
-  await surpay.subscriptions.list('123')
+  await surpay.subscriptions.list()
 
   // Transactions
-  await surpay.transactions.list('123')
+  await surpay.transactions.list()
 
   // Accounts
   await surpay.accounts.connect({ processor: 'stripe' })

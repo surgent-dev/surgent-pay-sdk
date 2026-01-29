@@ -22,8 +22,8 @@
  * export const { createCheckout, getCustomer, listCustomers, listSubscriptions } = surpay.api();
  * ```
  */
-import { actionGeneric } from "convex/server";
-import { Surpay as SurpayClient, ResponseCase } from "@surgent-dev/surpay";
+import { actionGeneric, GenericActionCtx } from "convex/server";
+import { Surpay as SurpayClient, ResponseCase, camelToSnake } from "@surgent-dev/surpay";
 import {
   CreateCheckoutArgs,
   CheckArgs,
@@ -37,7 +37,8 @@ export type IdentifierOpts = {
   customerData?: { name?: string; email?: string };
 };
 
-export type SurpayConfig = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SurpayConfig<Ctx extends GenericActionCtx<any> = GenericActionCtx<any>> = {
   apiKey: string;
   baseUrl?: string;
   /**
@@ -48,7 +49,7 @@ export type SurpayConfig = {
    * Defaults to 'snake' for Convex validator compatibility.
    */
   responseCase?: ResponseCase;
-  identify: (ctx: any) => Promise<IdentifierOpts | null>;
+  identify: (ctx: Ctx) => Promise<IdentifierOpts | null>;
 };
 
 // Convex can't serialize class instances - convert errors to plain objects
@@ -76,11 +77,12 @@ async function wrapSdkCall<T>(
   }
 }
 
-export class Surpay {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class Surpay<Ctx extends GenericActionCtx<any> = GenericActionCtx<any>> {
   private client: SurpayClient;
-  private options: SurpayConfig;
+  private options: SurpayConfig<Ctx>;
 
-  constructor(config: SurpayConfig) {
+  constructor(config: SurpayConfig<Ctx>) {
     this.options = config;
     const g = globalThis as { process?: { env: Record<string, string | undefined> } };
     const envBaseUrl = g.process?.env.SURPAY_BASE_URL;
@@ -92,7 +94,7 @@ export class Surpay {
     });
   }
 
-  async getIdentifierOpts(ctx: any): Promise<IdentifierOpts | null> {
+  async getIdentifierOpts(ctx: Ctx): Promise<IdentifierOpts | null> {
     return await this.options.identify(ctx);
   }
 
@@ -100,7 +102,7 @@ export class Surpay {
     ctx,
     requireAuth = true,
   }: {
-    ctx: any;
+    ctx: Ctx;
     requireAuth?: boolean;
   }): Promise<{ client: SurpayClient; identifierOpts: IdentifierOpts | null }> {
     const identifierOpts = await this.getIdentifierOpts(ctx);
@@ -115,10 +117,17 @@ export class Surpay {
       createCheckout: actionGeneric({
         args: CreateCheckoutArgs,
         handler: async (ctx, args) => {
-          const { client, identifierOpts } = await this.getAuthParams({ ctx });
+          const { client, identifierOpts } = await this.getAuthParams({ ctx: ctx as Ctx });
+          // Transform camelCase user args to snake_case for API
+          const snakeCaseArgs = camelToSnake(args) as unknown as {
+            product_id: string;
+            price_id?: string;
+            success_url?: string;
+            cancel_url?: string;
+          };
           return wrapSdkCall(() =>
             client.checkout.create({
-              ...args,
+              ...snakeCaseArgs,
               customer_id: identifierOpts!.customerId,
               customer_data: identifierOpts!.customerData,
             })
@@ -129,10 +138,10 @@ export class Surpay {
       check: actionGeneric({
         args: CheckArgs,
         handler: async (ctx, args) => {
-          const { client, identifierOpts } = await this.getAuthParams({ ctx });
+          const { client, identifierOpts } = await this.getAuthParams({ ctx: ctx as Ctx });
           return wrapSdkCall(() =>
             client.check({
-              product_id: args.product_id,
+              product_id: args.productId,
               customer_id: identifierOpts!.customerId,
             })
           );
@@ -142,27 +151,24 @@ export class Surpay {
       getCustomer: actionGeneric({
         args: GetCustomerArgs,
         handler: async (ctx, args) => {
-          const { client, identifierOpts } = await this.getAuthParams({ ctx });
-          const customerId = args.customer_id || identifierOpts!.customerId;
-          return wrapSdkCall(() =>
-            client.customers.get(args.project_id, customerId)
-          );
+          const { client } = await this.getAuthParams({ ctx: ctx as Ctx, requireAuth: false });
+          return wrapSdkCall(() => client.customers.get(args.customer_id));
         },
       }),
 
       listCustomers: actionGeneric({
         args: ListCustomersArgs,
-        handler: async (ctx, args) => {
-          const { client } = await this.getAuthParams({ ctx });
-          return wrapSdkCall(() => client.customers.list(args.project_id));
+        handler: async (ctx) => {
+          const { client } = await this.getAuthParams({ ctx: ctx as Ctx });
+          return wrapSdkCall(() => client.customers.list());
         },
       }),
 
       listSubscriptions: actionGeneric({
         args: ListSubscriptionsArgs,
-        handler: async (ctx, args) => {
-          const { client } = await this.getAuthParams({ ctx });
-          return wrapSdkCall(() => client.subscriptions.list(args.project_id));
+        handler: async (ctx) => {
+          const { client } = await this.getAuthParams({ ctx: ctx as Ctx });
+          return wrapSdkCall(() => client.subscriptions.list());
         },
       }),
     };

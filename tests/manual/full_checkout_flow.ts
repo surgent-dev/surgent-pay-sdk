@@ -68,7 +68,7 @@ async function main() {
   console.log('EXISTING PRICES')
   console.log('='.repeat(50))
 
-  const { data: productsWithPrices, error: pricesError } = await surpay.products.listWithPrices(projectId)
+  const { data: productsWithPrices, error: pricesError } = await surpay.products.listWithPrices()
 
   const allPrices: Array<{ price: any; product: any; index: number }> = []
   const createdThisSession: Array<{ name: string; id: string; amount: number; currency: string; interval?: string }> =
@@ -149,7 +149,6 @@ async function main() {
 
     console.log('\nCreating sample product (Pro Plan)...')
     const { data: sampleProduct, error: sampleProductError } = await surpay.products.create({
-      project_id: projectId,
       product_group_id: sampleProductGroupId,
       name: `Pro Plan ${sampleTimestamp}`,
       slug: `pro-plan-${sampleTimestamp}`,
@@ -164,7 +163,6 @@ async function main() {
       // Monthly price
       console.log('\nCreating monthly price...')
       const monthlyPriceRequest = {
-        project_id: projectId,
         product_group_id: sampleProductGroupId,
         name: 'Monthly',
         price: 999, // $9.99 in cents
@@ -189,7 +187,6 @@ async function main() {
       // Yearly price (with discount)
       console.log('Creating yearly price...')
       const yearlyPriceRequest = {
-        project_id: projectId,
         product_group_id: sampleProductGroupId,
         name: 'Yearly',
         price: 9900, // $99/year (save ~17%)
@@ -231,7 +228,6 @@ async function main() {
 
     console.log('\nCreating new product...')
     const { data: newProduct, error: newProductError } = await surpay.products.create({
-      project_id: projectId,
       product_group_id: newProductGroupId,
       name: `Custom Product ${newTimestamp}`,
       slug: `custom-product-${newTimestamp}`,
@@ -246,7 +242,6 @@ async function main() {
       console.log('Creating new price...')
       const priceName = priceType === 'recurring' ? `Recurring $${amountInput}` : `One-time $${amountInput}`
       const { data: newPrice, error: newPriceError } = await surpay.prices.create({
-        project_id: projectId,
         product_group_id: newProductGroupId,
         name: priceName,
         price: amountCents,
@@ -296,7 +291,7 @@ async function main() {
   console.log('\n' + '='.repeat(50))
   console.log('CUSTOMERS')
   console.log('='.repeat(50))
-  const { data: customers, error: customersError } = await surpay.customers.list(projectId)
+  const { data: customers, error: customersError } = await surpay.customers.list()
 
   if (customersError) {
     console.error('Failed to list customers:', customersError.message)
@@ -314,10 +309,7 @@ async function main() {
       }
 
       // Get detailed info for first customer
-      const { data: customerDetails, error: customerDetailError } = await surpay.customers.get(
-        projectId,
-        customers[0].id,
-      )
+      const { data: customerDetails, error: customerDetailError } = await surpay.customers.get(customers[0].id)
 
       if (!customerDetailError && customerDetails) {
         console.log('\nFirst customer details:')
@@ -334,7 +326,7 @@ async function main() {
   console.log('\n' + '='.repeat(50))
   console.log('SUBSCRIPTIONS')
   console.log('='.repeat(50))
-  const { data: subscriptions, error: subsError } = await surpay.subscriptions.list(projectId)
+  const { data: subscriptions, error: subsError } = await surpay.subscriptions.list()
 
   if (subsError) {
     console.error('Failed to list subscriptions:', subsError.message)
@@ -371,7 +363,7 @@ async function main() {
   console.log('\n' + '='.repeat(50))
   console.log('TRANSACTIONS')
   console.log('='.repeat(50))
-  const { data: transactions, error: txError } = await surpay.transactions.list(projectId)
+  const { data: transactions, error: txError } = await surpay.transactions.list()
 
   if (txError) {
     console.error('Failed to list transactions:', txError.message)
@@ -412,7 +404,7 @@ async function main() {
   console.log('\n' + '='.repeat(50))
   console.log('PRICES (FULL LIST)')
   console.log('='.repeat(50))
-  const { data: allProductsWithPrices, error: allPricesError } = await surpay.products.listWithPrices(projectId)
+  const { data: allProductsWithPrices, error: allPricesError } = await surpay.products.listWithPrices()
 
   if (allPricesError) {
     console.log(`Failed to list prices: ${allPricesError.message}`)

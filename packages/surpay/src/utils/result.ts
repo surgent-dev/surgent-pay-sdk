@@ -60,10 +60,23 @@ export const toResult = async <T>(
     return { data: {} as T, error: null, statusCode }
   }
 
-  const parsed = JSON.parse(text)
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(text)
+  } catch {
+    return {
+      data: null,
+      error: new SurpayError({
+        message: 'Server returned invalid JSON response',
+        code: 'invalid_json_response',
+        statusCode,
+      }),
+      statusCode,
+    }
+  }
 
   // Normalize response keys to snake_case if configured (default behavior)
-  const data = responseCase === 'snake' ? camelToSnake<T>(parsed) : (parsed as T)
+  const data = responseCase === 'snake' ? camelToSnake(parsed as T) : (parsed as T)
 
   return { data, error: null, statusCode }
 }

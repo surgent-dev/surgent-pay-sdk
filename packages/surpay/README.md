@@ -86,7 +86,7 @@ Note: Projects are created via the Surgent dashboard. The SDK provides read-only
 
 ```typescript
 // List projects
-const { data: projects } = await surpay.projects.list()
+const { data: projects, error } = await surpay.projects.list()
 ```
 
 ### Products
@@ -95,20 +95,19 @@ Manage products within a project.
 
 ```typescript
 // Create a product
-const { data } = await surpay.products.create({
-  project_id: 'proj_123',
+const { data: product, error } = await surpay.products.create({
   product_group_id: 'group_456',
   name: 'Pro Plan',
   slug: 'pro-plan',
 })
 
 // Update a product
-await surpay.products.update('prod_123', {
+const { data: updated, error: updateError } = await surpay.products.update('prod_123', {
   name: 'Pro Plan v2',
 })
 
 // List products with their prices
-const { data: products } = await surpay.products.listWithPrices('proj_123')
+const { data: products, error: listError } = await surpay.products.listWithPrices()
 ```
 
 ### Prices
@@ -117,8 +116,7 @@ Manage pricing for your products.
 
 ```typescript
 // Create a price
-const { data } = await surpay.prices.create({
-  project_id: 'proj_123',
+const { data: price, error } = await surpay.prices.create({
   product_group_id: 'group_456',
   name: 'Monthly',
   price: 999, // $9.99
@@ -133,15 +131,17 @@ Create hosted checkout sessions.
 
 ```typescript
 // Create a checkout session
-const { data } = await surpay.checkout.create({
+const { data: checkout, error } = await surpay.checkout.create({
   product_id: 'prod_123',
   price_id: 'price_456',
-  customer_id: 'cust_123',
+  customer_id: 'cust_123', // Required
   success_url: 'https://example.com/success',
   cancel_url: 'https://example.com/cancel',
 })
 
-console.log(data.checkout_url)
+if (checkout) {
+  console.log(checkout.checkout_url)
+}
 ```
 
 ### Check
@@ -149,12 +149,12 @@ console.log(data.checkout_url)
 Verify if a customer has access to a specific product.
 
 ```typescript
-const { data } = await surpay.check({
+const { data, error } = await surpay.check({
   customer_id: 'cust_123',
   product_id: 'prod_123',
 })
 
-if (data.allowed) {
+if (data?.allowed) {
   console.log('Customer has access')
 }
 ```
@@ -165,10 +165,10 @@ Retrieve customer information.
 
 ```typescript
 // List customers
-const { data: customers } = await surpay.customers.list('proj_123')
+const { data: customers, error } = await surpay.customers.list()
 
 // Get customer with details (subscriptions & transactions)
-const { data: customer } = await surpay.customers.get('proj_123', 'cust_123')
+const { data: customer, error: getError } = await surpay.customers.get('cust_123')
 ```
 
 ### Subscriptions
@@ -177,7 +177,7 @@ Monitor active subscriptions.
 
 ```typescript
 // List subscriptions
-const { data: subscriptions } = await surpay.subscriptions.list('proj_123')
+const { data: subscriptions, error } = await surpay.subscriptions.list()
 ```
 
 ### Transactions
@@ -186,7 +186,7 @@ Track payments and revenue.
 
 ```typescript
 // List transactions
-const { data: transactions } = await surpay.transactions.list('proj_123')
+const { data: transactions, error } = await surpay.transactions.list()
 ```
 
 ### Accounts
@@ -195,16 +195,16 @@ Manage connected payment processor accounts.
 
 ```typescript
 // Connect a new account (Stripe)
-const { data } = await surpay.accounts.connect({
+const { data: account, error } = await surpay.accounts.connect({
   processor: 'stripe',
 })
 
 // Get account details
-const { data: account } = await surpay.accounts.get('acc_123')
+const { data: accountDetails, error: getError } = await surpay.accounts.get('acc_123')
 
 // List connected accounts
-const { data: accounts } = await surpay.accounts.list()
+const { data: accounts, error: listError } = await surpay.accounts.list()
 
 // Delete/Disconnect an account
-await surpay.accounts.delete('acc_123')
+const { error: deleteError } = await surpay.accounts.delete('acc_123')
 ```
