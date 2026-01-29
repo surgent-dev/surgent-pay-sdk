@@ -5,6 +5,29 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "surpay",
+    "convex",
+    "payments",
+    "billing",
+    "subscriptions"
+  ],
+  "author": "Surgent",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/surgent-dev/surpay-sdk-ts.git",
@@ -14,15 +37,8 @@
   "bugs": {
     "url": "https://github.com/surgent-dev/surpay-sdk-ts/issues"
   },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
-  },
-  "scripts": {
-    "build": "tsc",
-    "clean": "rm -rf dist"
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "@surgent-dev/surpay": "^0.2.0"
