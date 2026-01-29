@@ -1,9 +1,19 @@
 {
   "name": "@surgent-dev/surpay-convex",
   "version": "0.2.0",
+  "description": "Convex integration for Surpay SDK",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/surgent-dev/surpay-sdk-ts.git",
+    "directory": "packages/surpay-convex"
+  },
+  "homepage": "https://github.com/surgent-dev/surpay-sdk-ts#readme",
+  "bugs": {
+    "url": "https://github.com/surgent-dev/surpay-sdk-ts/issues"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
