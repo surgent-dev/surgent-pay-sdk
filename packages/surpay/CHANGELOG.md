@@ -1,5 +1,11 @@
 # @surgent-dev/surpay
 
+## 0.2.1
+
+### Patch Changes
+
+- 2848528: Aligned with API endpoint
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@surgent-dev/surpay-convex",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Convex integration for Surpay SDK",
   "type": "module",
   "main": "dist/index.js",
@@ -41,7 +41,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@surgent-dev/surpay": "^0.2.0"
+    "@surgent-dev/surpay": "^0.2.1"
   },
   "peerDependencies": {
     "convex": "^1.25.0"

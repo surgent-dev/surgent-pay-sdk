@@ -1,5 +1,13 @@
 # @surgent-dev/surpay-convex
 
+## 0.2.1
+
+### Patch Changes
+
+- 2848528: Aligned with API endpoint
+- Updated dependencies [2848528]
+  - @surgent-dev/surpay@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes
