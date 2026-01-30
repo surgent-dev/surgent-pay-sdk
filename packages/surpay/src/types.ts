@@ -2,7 +2,7 @@
  * Surpay SDK Type Definitions
  *
  * These types mirror your Rust API's request/response shapes.
- * We use snake_case to match the API directly.
+ * We use camelCase to match the API directly.
  */
 
 // ============================================================================
@@ -42,9 +42,8 @@ export type PayoutStatus = 'paid' | 'pending' | 'in_transit' | 'canceled' | 'fai
 export interface Project {
   id: string
   name: string
-  slug?: string
-  external_id?: string | null
-  organization_id?: string | null
+  slug: string
+  organizationId: string
 }
 
 // ============================================================================
@@ -53,15 +52,15 @@ export interface Project {
 
 export interface Customer {
   id: string
-  email: string
+  email: string | null
   name?: string | null
-  processor_customer_id?: string | null
-  project_id?: string | null
+  processorCustomerId?: string | null
+  projectId: string
 }
 
 export interface TransactionSummary {
   id: string
-  created_at: string
+  createdAt: string
   type: TransactionType
   amount: number
   currency: string
@@ -69,11 +68,11 @@ export interface TransactionSummary {
 
 export interface SubscriptionSummary {
   id: string
-  created_at: string
-  current_period_start?: string
-  current_period_end?: string
+  createdAt: string
+  currentPeriodStart?: string
+  currentPeriodEnd?: string
   status: SubscriptionStatus
-  processor_subscription_id?: string
+  processorSubscriptionId?: string
 }
 
 export interface CustomerWithDetails extends Customer {
@@ -86,16 +85,16 @@ export interface CustomerWithDetails extends Customer {
 // ============================================================================
 
 export interface CreateProductRequest {
-  product_group_id: string
+  productGroup: string
   name: string
   description?: string
-  is_default?: boolean
+  isDefault?: boolean
   slug: string
 }
 
 export interface CreateProductResponse {
-  product_id: string
-  product_group_id: string
+  productId: string
+  productGroup: string
   version: number
 }
 
@@ -103,26 +102,26 @@ export interface UpdateProductRequest {
   name?: string
   description?: string
   slug?: string
-  is_default?: boolean
-  is_archived?: boolean
+  isDefault?: boolean
+  isArchived?: boolean
 }
 
 export interface UpdateProductResponse {
-  product_id: string
-  product_group_id: string
+  productId: string
+  productGroup: string
   version: number
 }
 
 export interface Product {
   id: string
-  product_group_id: string
+  productGroup: string
   name: string
   slug: string
   description?: string | null
-  is_archived?: boolean | null
-  is_default?: boolean | null
-  processor_product_id?: string | null
-  project_id?: string | null
+  isArchived?: boolean | null
+  isDefault?: boolean | null
+  processorProductId?: string | null
+  projectId: string
   version?: number | null
 }
 
@@ -131,27 +130,28 @@ export interface Product {
 // ============================================================================
 
 export interface CreatePriceRequest {
-  product_group_id: string
+  productGroup: string
   name?: string
   description?: string
-  is_default?: boolean
+  isDefault?: boolean
   price: number
-  price_currency: string
-  recurring_interval?: RecurringInterval
+  priceCurrency: string
+  recurringInterval?: RecurringInterval
+  slug?: string | null
 }
 
 export interface CreatePriceResponse {
-  product_price_id: string
+  productPriceId: string
 }
 
 export interface ProductPrice {
   id: string
   name?: string | null
   description?: string | null
-  price_amount?: number | null
-  price_currency?: string | null
-  is_default?: boolean | null
-  recurring_interval?: RecurringInterval | null
+  priceAmount: number
+  priceCurrency: string
+  isDefault?: boolean | null
+  recurringInterval?: RecurringInterval | null
 }
 
 export interface ProductWithPrices {
@@ -163,21 +163,23 @@ export interface ProductWithPrices {
 // Checkout
 // ============================================================================
 
+export interface CustomerData {
+  email?: string | null
+  name?: string | null
+}
+
 export interface CreateCheckoutRequest {
-  product_id: string
-  price_id?: string
-  success_url?: string
-  cancel_url?: string
-  customer_id: string
-  customer_data?: {
-    email?: string
-    name?: string
-  }
+  productId: string
+  priceId?: string
+  successUrl?: string
+  cancelUrl?: string
+  customerId: string
+  customerData?: CustomerData | null
 }
 
 export interface CreateCheckoutResponse {
-  checkout_url: string
-  customer_id: string
+  checkoutUrl: string
+  customerId: string
 }
 
 // ============================================================================
@@ -185,8 +187,8 @@ export interface CreateCheckoutResponse {
 // ============================================================================
 
 export interface CheckRequest {
-  customer_id: string
-  product_id: string
+  customerId: string
+  productId: string
 }
 
 export interface CheckResponse {
@@ -199,41 +201,41 @@ export interface CheckResponse {
 
 export interface Transaction {
   id: string
-  created_at: string
+  createdAt: string
   type: TransactionType
   amount: number
   currency: string
   processor: string
 
   // Optional fields
-  account_id?: string | null
-  account_amount?: number | null
-  account_currency?: string | null
-  charge_id?: string | null
-  checkout_session_id?: string | null
-  customer_id?: string | null
-  incurred_by_transaction_id?: string | null
+  accountId?: string | null
+  accountAmount?: number | null
+  accountCurrency?: string | null
+  chargeId?: string | null
+  checkoutSessionId?: string | null
+  customerId?: string | null
+  incurredByTransactionId?: string | null
   metadata?: Record<string, unknown>
-  payment_transaction_id?: string | null
-  payout_id?: string | null
-  payout_transaction_id?: string | null
-  presentment_amount?: number | null
-  presentment_currency?: string | null
-  presentment_tax_amount?: number | null
-  processor_invoice_id?: string | null
-  product_id?: string | null
-  product_price_id?: string | null
-  project_id?: string | null
-  refund_id?: string | null
-  refunded_at?: string | null
-  subscription_id?: string | null
-  succeeded_at?: string | null
-  tax_amount?: number | null
-  tax_country?: string | null
-  tax_filing_amount?: number | null
-  tax_filing_currency?: string | null
-  tax_state?: string | null
-  transfer_id?: string | null
+  paymentTransactionId?: string | null
+  payoutId?: string | null
+  payoutTransactionId?: string | null
+  presentmentAmount?: number | null
+  presentmentCurrency?: string | null
+  presentmentTaxAmount?: number | null
+  processorInvoiceId?: string | null
+  productId?: string | null
+  productPriceId?: string | null
+  projectId: string
+  refundId?: string | null
+  refundedAt?: string | null
+  subscriptionId?: string | null
+  succeededAt?: string | null
+  taxAmount?: number | null
+  taxCountry?: string | null
+  taxFilingAmount?: number | null
+  taxFilingCurrency?: string | null
+  taxState?: string | null
+  transferId?: string | null
 }
 
 // ============================================================================
@@ -242,20 +244,20 @@ export interface Transaction {
 
 export interface Subscription {
   id: string
-  created_at: string
+  createdAt: string
   status: SubscriptionStatus
 
-  canceled_at?: string | null
-  current_period_end?: string | null
-  current_period_start?: string | null
-  customer_id?: string | null
-  deleted_at?: string | null
-  ended_at?: string | null
-  processor_customer_id?: string | null
-  processor_subscription_id?: string | null
-  product_id?: string | null
-  product_price_id?: string | null
-  project_id?: string | null
+  canceledAt?: string | null
+  currentPeriodEnd?: string | null
+  currentPeriodStart?: string | null
+  customerId?: string | null
+  deletedAt?: string | null
+  endedAt?: string | null
+  processorCustomerId?: string | null
+  processorSubscriptionId?: string | null
+  productId?: string | null
+  productPriceId?: string | null
+  projectId: string
 }
 
 // ============================================================================
@@ -264,29 +266,29 @@ export interface Subscription {
 
 export interface ConnectAccountRequest {
   processor: string
-  account_type?: string
+  accountType?: string
   country?: string
   email?: string
-  business_type?: string
+  businessType?: string
 }
 
 export interface ConnectAccountResponse {
-  account_id: string
-  oauth_url: string
+  accountId: string
+  onboardingUrl: string
+  processorAccountId: string
 }
 
 export interface ConnectedAccount {
   id: string
-  project_id: string
   processor: string
   status: string
   country: string
   currency: string
-  details_submitted: boolean
-  charges_enabled: boolean
-  payouts_enabled: boolean
-  business_type?: string | null
-  processor_account_id?: string | null
+  detailsSubmitted: boolean
+  chargesEnabled: boolean
+  payoutsEnabled: boolean
+  businessType?: string | null
+  processorAccountId?: string | null
 }
 
 // ============================================================================
@@ -295,8 +297,8 @@ export interface ConnectedAccount {
 
 /**
  * Response case format for API responses.
- * - 'snake': Transform camelCase keys to snake_case (default, matches TypeScript types)
- * - 'camel': Keep original camelCase keys from API
+ * - 'camel' (default): Keep original camelCase keys from API (matches TypeScript types)
+ * - 'snake': Transform camelCase keys to snake_case (legacy, deprecated)
  */
 export type ResponseCase = 'snake' | 'camel'
 
@@ -307,8 +309,8 @@ export interface SurpayConfig {
   baseUrl?: string
   /**
    * Response key case format.
-   * - 'snake' (default): Transform API responses from camelCase to snake_case to match TypeScript types
-   * - 'camel': Keep original camelCase keys from API responses
+   * - 'camel' (default): Keep original camelCase keys from API (matches TypeScript types)
+   * - 'snake': Transform to snake_case (legacy, deprecated)
    */
   responseCase?: ResponseCase
 }

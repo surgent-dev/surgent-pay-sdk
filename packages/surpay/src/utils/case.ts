@@ -1,9 +1,9 @@
 /**
  * Case transformation utilities for API response normalization.
  *
- * The Surpay API returns camelCase keys (e.g., `productGroupId`), but the SDK's
- * TypeScript types use snake_case (e.g., `product_group_id`) to match Rust conventions.
- * These utilities transform response data to match the expected types.
+ * @deprecated The SDK now uses camelCase for both API responses and TypeScript types.
+ * This utility is kept for backwards compatibility but is no longer used by default.
+ * It will be removed in a future major version.
  */
 
 /**
@@ -20,6 +20,9 @@ const stringToSnakeCase = (str: string): string => {
 /**
  * Recursively transforms all object keys from camelCase to snake_case.
  *
+ * @deprecated No longer used by default. The SDK now uses camelCase throughout.
+ * Kept for backwards compatibility with `responseCase: 'snake'` option.
+ *
  * Handles:
  * - Nested objects (recursively transforms)
  * - Arrays of objects (transforms each element)
@@ -29,9 +32,6 @@ const stringToSnakeCase = (str: string): string => {
  * @example
  * camelToSnake({ productGroupId: 'pg_123', isDefault: true })
  * // { product_group_id: 'pg_123', is_default: true }
- *
- * camelToSnake([{ customerId: 'cus_1' }, { customerId: 'cus_2' }])
- * // [{ customer_id: 'cus_1' }, { customer_id: 'cus_2' }]
  *
  * @param input - The value to transform (object, array, or primitive)
  * @returns The transformed value with snake_case keys

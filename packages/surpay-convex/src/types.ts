@@ -20,16 +20,16 @@ export const CheckArgs = v.object({
 });
 export type CheckArgs = Infer<typeof CheckArgs>;
 
-// ListSubscriptions: no args required (project_id from auth context)
+// ListSubscriptions: no args required (projectId from auth context)
 export const ListSubscriptionsArgs = v.object({});
 export type ListSubscriptionsArgs = Infer<typeof ListSubscriptionsArgs>;
 
-// GetCustomer: requires customer_id (project_id from auth context)
+// GetCustomer: requires customerId (projectId from auth context)
 export const GetCustomerArgs = v.object({
-  customer_id: v.string(),
+  customerId: v.string(),
 });
 export type GetCustomerArgs = Infer<typeof GetCustomerArgs>;
 
-// ListCustomers: no args required (project_id from auth context)
+// ListCustomers: no args required (projectId from auth context)
 export const ListCustomersArgs = v.object({});
 export type ListCustomersArgs = Infer<typeof ListCustomersArgs>;

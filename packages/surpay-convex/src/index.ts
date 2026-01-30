@@ -23,7 +23,7 @@
  * ```
  */
 import { actionGeneric, GenericActionCtx } from "convex/server";
-import { Surpay as SurpayClient, ResponseCase, camelToSnake } from "@surgent-dev/surpay";
+import { Surpay as SurpayClient, ResponseCase } from "@surgent-dev/surpay";
 import {
   CreateCheckoutArgs,
   CheckArgs,
@@ -118,18 +118,14 @@ export class Surpay<Ctx extends GenericActionCtx<any> = GenericActionCtx<any>> {
         args: CreateCheckoutArgs,
         handler: async (ctx, args) => {
           const { client, identifierOpts } = await this.getAuthParams({ ctx: ctx as Ctx });
-          // Transform camelCase user args to snake_case for API
-          const snakeCaseArgs = camelToSnake(args) as unknown as {
-            product_id: string;
-            price_id?: string;
-            success_url?: string;
-            cancel_url?: string;
-          };
           return wrapSdkCall(() =>
             client.checkout.create({
-              ...snakeCaseArgs,
-              customer_id: identifierOpts!.customerId,
-              customer_data: identifierOpts!.customerData,
+              productId: args.productId,
+              priceId: args.priceId,
+              successUrl: args.successUrl,
+              cancelUrl: args.cancelUrl,
+              customerId: identifierOpts!.customerId,
+              customerData: identifierOpts!.customerData,
             })
           );
         },
@@ -141,8 +137,8 @@ export class Surpay<Ctx extends GenericActionCtx<any> = GenericActionCtx<any>> {
           const { client, identifierOpts } = await this.getAuthParams({ ctx: ctx as Ctx });
           return wrapSdkCall(() =>
             client.check({
-              product_id: args.productId,
-              customer_id: identifierOpts!.customerId,
+              productId: args.productId,
+              customerId: identifierOpts!.customerId,
             })
           );
         },
@@ -152,7 +148,7 @@ export class Surpay<Ctx extends GenericActionCtx<any> = GenericActionCtx<any>> {
         args: GetCustomerArgs,
         handler: async (ctx, args) => {
           const { client } = await this.getAuthParams({ ctx: ctx as Ctx, requireAuth: false });
-          return wrapSdkCall(() => client.customers.get(args.customer_id));
+          return wrapSdkCall(() => client.customers.get(args.customerId));
         },
       }),
 

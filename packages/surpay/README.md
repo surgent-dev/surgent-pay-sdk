@@ -96,7 +96,7 @@ Manage products within a project.
 ```typescript
 // Create a product
 const { data: product, error } = await surpay.products.create({
-  product_group_id: 'group_456',
+  productGroup: 'group_456',
   name: 'Pro Plan',
   slug: 'pro-plan',
 })
@@ -117,11 +117,11 @@ Manage pricing for your products.
 ```typescript
 // Create a price
 const { data: price, error } = await surpay.prices.create({
-  product_group_id: 'group_456',
+  productGroup: 'group_456',
   name: 'Monthly',
   price: 999, // $9.99
-  price_currency: 'usd',
-  recurring_interval: 'month',
+  priceCurrency: 'usd',
+  recurringInterval: 'month',
 })
 ```
 
@@ -132,15 +132,15 @@ Create hosted checkout sessions.
 ```typescript
 // Create a checkout session
 const { data: checkout, error } = await surpay.checkout.create({
-  product_id: 'prod_123',
-  price_id: 'price_456',
-  customer_id: 'cust_123', // Required
-  success_url: 'https://example.com/success',
-  cancel_url: 'https://example.com/cancel',
+  productId: 'prod_123',
+  priceId: 'price_456',
+  customerId: 'cust_123', // Required
+  successUrl: 'https://example.com/success',
+  cancelUrl: 'https://example.com/cancel',
 })
 
 if (checkout) {
-  console.log(checkout.checkout_url)
+  console.log(checkout.checkoutUrl)
 }
 ```
 
@@ -150,8 +150,8 @@ Verify if a customer has access to a specific product.
 
 ```typescript
 const { data, error } = await surpay.check({
-  customer_id: 'cust_123',
-  product_id: 'prod_123',
+  customerId: 'cust_123',
+  productId: 'prod_123',
 })
 
 if (data?.allowed) {

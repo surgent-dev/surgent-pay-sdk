@@ -1,6 +1,35 @@
 import { describe, test, expect } from 'bun:test'
 import { camelToSnake } from './case.js'
-import type { Product, ProductPrice, ProductWithPrices } from '../types.js'
+
+// Snake_case versions of types for testing camelToSnake output
+// These represent the wire format after transformation
+type SnakeCaseProduct = {
+  id: string
+  product_group_id: string
+  name: string
+  slug: string
+  description?: string | null
+  is_archived?: boolean | null
+  is_default?: boolean | null
+  processor_product_id?: string | null
+  project_id?: string | null
+  version?: number | null
+}
+
+type SnakeCaseProductPrice = {
+  id: string
+  name?: string | null
+  description?: string | null
+  price_amount?: number | null
+  price_currency?: string | null
+  is_default?: boolean | null
+  recurring_interval?: string | null
+}
+
+type SnakeCaseProductWithPrices = {
+  product: SnakeCaseProduct
+  prices: SnakeCaseProductPrice[]
+}
 
 // ============================================================================
 // camelToSnake utility tests
@@ -192,9 +221,9 @@ describe('API response normalization', () => {
         version: 1,
       }
 
-      const normalized = camelToSnake(apiResponse) as unknown as Product
+      const normalized = camelToSnake(apiResponse) as unknown as SnakeCaseProduct
 
-      // Verify shape matches Product type
+      // Verify shape matches snake_case wire format
       expect(normalized.id).toBe('prod_123')
       expect(normalized.product_group_id).toBe('pg_456')
       expect(normalized.name).toBe('Pro Plan')
@@ -221,7 +250,7 @@ describe('API response normalization', () => {
         version: null,
       }
 
-      const normalized = camelToSnake(apiResponse) as unknown as Product
+      const normalized = camelToSnake(apiResponse) as unknown as SnakeCaseProduct
 
       expect(normalized.id).toBe('prod_123')
       expect(normalized.product_group_id).toBe('pg_456')
@@ -246,7 +275,7 @@ describe('API response normalization', () => {
         recurringInterval: 'month',
       }
 
-      const normalized = camelToSnake(apiResponse) as unknown as ProductPrice
+      const normalized = camelToSnake(apiResponse) as unknown as SnakeCaseProductPrice
 
       expect(normalized.id).toBe('price_123')
       expect(normalized.name).toBe('Monthly')
@@ -295,7 +324,7 @@ describe('API response normalization', () => {
         ],
       }
 
-      const normalized = camelToSnake(apiResponse) as unknown as ProductWithPrices
+      const normalized = camelToSnake(apiResponse) as unknown as SnakeCaseProductWithPrices
 
       // Verify product
       expect(normalized.product.id).toBe('prod_123')
@@ -339,7 +368,7 @@ describe('API response normalization', () => {
         },
       ]
 
-      const normalized = camelToSnake(apiResponse) as unknown as Product[]
+      const normalized = camelToSnake(apiResponse) as unknown as SnakeCaseProduct[]
 
       expect(normalized).toHaveLength(2)
 

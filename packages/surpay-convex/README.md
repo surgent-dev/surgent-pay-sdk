@@ -49,17 +49,17 @@ import { api } from "./_generated/api";
 
 // Inside a Convex action or from client
 const { data, error } = await ctx.runAction(api.surpay.createCheckout, {
-  product_id: "prod_123",
-  customer_id: "cust_123", // Optional if using identify()
-  price_id: "price_123",
-  success_url: "https://example.com/success",
-  cancel_url: "https://example.com/cancel",
+  productId: "prod_123",
+  customerId: "cust_123", // Optional if using identify()
+  priceId: "price_123",
+  successUrl: "https://example.com/success",
+  cancelUrl: "https://example.com/cancel",
 });
 
 if (error) {
   console.error(error.message);
 } else {
-  console.log(data.checkout_url);
+  console.log(data.checkoutUrl);
 }
 ```
 
@@ -69,8 +69,8 @@ if (error) {
 import { api } from "./_generated/api";
 
 const { data, error } = await ctx.runAction(api.surpay.check, {
-  product_id: "prod_123",
-  customer_id: "cust_123", // Optional if using identify()
+  productId: "prod_123",
+  customerId: "cust_123", // Optional if using identify()
 });
 
 if (data?.allowed) {
@@ -84,7 +84,7 @@ if (data?.allowed) {
 import { api } from "./_generated/api";
 
 const { data, error } = await ctx.runAction(api.surpay.getCustomer, {
-  customer_id: "cust_123",
+  customerId: "cust_123",
 });
 ```
 
@@ -108,8 +108,8 @@ const { data, error } = await ctx.runAction(api.surpay.listSubscriptions, {});
 
 | Action | Args | Returns |
 |--------|------|---------|
-| `createCheckout` | `product_id`, `customer_id?`, `price_id?`, `success_url?`, `cancel_url?` | `{ checkout_url: string, customer_id: string }` |
-| `check` | `product_id`, `customer_id?` | `{ allowed: boolean }` |
-| `getCustomer` | `customer_id` | `CustomerWithDetails` |
+| `createCheckout` | `productId`, `customerId?`, `priceId?`, `successUrl?`, `cancelUrl?` | `{ checkoutUrl: string, customerId: string }` |
+| `check` | `productId`, `customerId?` | `{ allowed: boolean }` |
+| `getCustomer` | `customerId` | `CustomerWithDetails` |
 | `listCustomers` | - | `Customer[]` |
 | `listSubscriptions` | - | `Subscription[]` |

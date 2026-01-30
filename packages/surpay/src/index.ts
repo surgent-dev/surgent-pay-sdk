@@ -11,10 +11,10 @@
  *
  * // Create a checkout session
  * const { data, error } = await surpay.checkout.create({
- *   product_id: 'prod_xxx',
- *   price_id: 'price_xxx',
- *   success_url: 'https://myapp.com/success',
- *   cancel_url: 'https://myapp.com/cancel',
+ *   productId: 'prod_xxx',
+ *   priceId: 'price_xxx',
+ *   successUrl: 'https://myapp.com/success',
+ *   cancelUrl: 'https://myapp.com/cancel',
  * })
  *
  * if (error) {
@@ -23,7 +23,7 @@
  * }
  *
  * // Redirect user to checkout
- * console.log(data.checkout_url)
+ * console.log(data.checkoutUrl)
  * ```
  */
 
@@ -34,6 +34,7 @@ export { Surpay } from './surpay.js'
 export { SurpayError, isSurpayError } from './errors.js'
 
 // Utilities
+/** @deprecated No longer used by default. Kept for backwards compatibility. */
 export { camelToSnake } from './utils/case.js'
 
 // All types

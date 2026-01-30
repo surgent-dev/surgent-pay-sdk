@@ -8,8 +8,8 @@ import { camelToSnake } from './case.js'
 export interface ToResultOptions {
   /**
    * Response key case format.
-   * - 'snake' (default): Transform camelCase keys to snake_case
-   * - 'camel': Keep original camelCase keys
+   * - 'camel' (default): Keep original camelCase keys (matches API and TypeScript types)
+   * - 'snake': Transform camelCase keys to snake_case (legacy, deprecated)
    */
   responseCase?: ResponseCase
 }
@@ -20,14 +20,14 @@ export interface ToResultOptions {
  * - Success (2xx): { data: T, error: null, statusCode }
  * - Failure (non-2xx): { data: null, error: SurpayError, statusCode }
  *
- * When responseCase is 'snake' (default), transforms camelCase API response keys
- * to snake_case to match the SDK's TypeScript type definitions.
+ * By default, keeps camelCase keys from the API which match the SDK's TypeScript types.
+ * Set responseCase to 'snake' for legacy snake_case transformation (deprecated).
  */
 export const toResult = async <T>(
   response: Response,
   options: ToResultOptions = {}
 ): Promise<Result<T, SurpayError>> => {
-  const { responseCase = 'snake' } = options
+  const { responseCase = 'camel' } = options
   const statusCode = response.status
 
   if (statusCode < 200 || statusCode >= 300) {
@@ -75,7 +75,7 @@ export const toResult = async <T>(
     }
   }
 
-  // Normalize response keys to snake_case if configured (default behavior)
+  // Transform to snake_case only if explicitly requested (legacy behavior)
   const data = responseCase === 'snake' ? camelToSnake(parsed as T) : (parsed as T)
 
   return { data, error: null, statusCode }
