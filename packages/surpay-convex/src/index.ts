@@ -9,7 +9,7 @@
  * import { Surpay } from "@surgent-dev/surpay-convex";
  *
  * const surpay = new Surpay({
- *   apiKey: process.env.SURPAY_API_KEY!,
+ *   apiKey: process.env.SURGENT_API_KEY!,
  *   identify: async (ctx) => {
  *     const identity = await ctx.auth.getUserIdentity();
  *     if (!identity) return null;
@@ -19,7 +19,16 @@
  *     };
  *   },
  * });
- * export const { createCheckout, getCustomer, listCustomers, listSubscriptions } = surpay.api();
+ *
+ * export const {
+ *   createCheckout,
+ *   guestCheckout,
+ *   check,
+ *   listProducts,
+ *   getCustomer,
+ *   listCustomers,
+ *   listSubscriptions,
+ * } = surpay.api();
  * ```
  */
 import { actionGeneric, GenericActionCtx } from "convex/server";
@@ -30,7 +39,13 @@ import {
   GetCustomerArgs,
   ListCustomersArgs,
   ListSubscriptionsArgs,
+  ListProductsArgs,
+  GuestCheckoutArgs,
 } from "./types.js";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 export type IdentifierOpts = {
   customerId: string;
@@ -43,14 +58,32 @@ export type SurpayConfig<Ctx extends GenericActionCtx<any> = GenericActionCtx<an
   baseUrl?: string;
   /**
    * Response key case format.
-   * - 'snake' (default): snake_case keys to match Convex validators
-   * - 'camel': camelCase keys from API responses
-   *
-   * Defaults to 'snake' for Convex validator compatibility.
+   * - 'camel' (default): camelCase keys matching TypeScript types
+   * - 'snake': snake_case keys (legacy)
    */
   responseCase?: ResponseCase;
+  /**
+   * Identify the current user from the action context.
+   * Return null if unauthenticated (will fail for auth-required actions).
+   *
+   * @example
+   * ```typescript
+   * identify: async (ctx) => {
+   *   const identity = await ctx.auth.getUserIdentity();
+   *   if (!identity) return null;
+   *   return {
+   *     customerId: identity.subject,
+   *     customerData: { name: identity.name, email: identity.email },
+   *   };
+   * }
+   * ```
+   */
   identify: (ctx: Ctx) => Promise<IdentifierOpts | null>;
 };
+
+// ============================================================================
+// Error Handling
+// ============================================================================
 
 // Convex can't serialize class instances - convert errors to plain objects
 type PlainError = { message: string; code?: string };
@@ -77,6 +110,27 @@ async function wrapSdkCall<T>(
   }
 }
 
+// ============================================================================
+// Helpers
+// ============================================================================
+
+function resolveProductId(
+  args: { productId?: string; productSlug?: string },
+  products: Array<{ product: { id: string; slug: string } }>
+): string {
+  if (args.productId) return args.productId;
+  if (args.productSlug) {
+    const found = products.find((p) => p.product.slug === args.productSlug);
+    if (!found) throw new Error(`Product with slug "${args.productSlug}" not found`);
+    return found.product.id;
+  }
+  throw new Error("Either productId or productSlug is required");
+}
+
+// ============================================================================
+// Main Class
+// ============================================================================
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class Surpay<Ctx extends GenericActionCtx<any> = GenericActionCtx<any>> {
   private client: SurpayClient;
@@ -89,81 +143,162 @@ export class Surpay<Ctx extends GenericActionCtx<any> = GenericActionCtx<any>> {
     this.client = new SurpayClient({
       apiKey: config.apiKey,
       baseUrl: config.baseUrl ?? envBaseUrl,
-      // Default to snake_case for Convex validator compatibility
-      responseCase: config.responseCase ?? "snake",
+      responseCase: config.responseCase ?? "camel",
     });
   }
 
-  async getIdentifierOpts(ctx: Ctx): Promise<IdentifierOpts | null> {
+  private async getIdentifierOpts(ctx: Ctx): Promise<IdentifierOpts | null> {
     return await this.options.identify(ctx);
   }
 
-  async getAuthParams({
-    ctx,
-    requireAuth = true,
-  }: {
-    ctx: Ctx;
-    requireAuth?: boolean;
-  }): Promise<{ client: SurpayClient; identifierOpts: IdentifierOpts | null }> {
-    const identifierOpts = await this.getIdentifierOpts(ctx);
-    if (requireAuth && !identifierOpts) {
-      throw new Error("No customer identifier found");
+  private async requireAuth(ctx: Ctx): Promise<IdentifierOpts> {
+    const opts = await this.getIdentifierOpts(ctx);
+    if (!opts) {
+      throw new Error(
+        "Authentication required. Make sure the user is signed in and your identify() function returns their customerId."
+      );
     }
-    return { client: this.client, identifierOpts };
+    return opts;
   }
 
   api() {
+    const client = this.client;
+
     return {
+      /**
+       * Create a checkout session for the authenticated user.
+       * Requires user to be signed in (uses identify() for customerId).
+       */
       createCheckout: actionGeneric({
         args: CreateCheckoutArgs,
         handler: async (ctx, args) => {
-          const { client, identifierOpts } = await this.getAuthParams({ ctx: ctx as Ctx });
+          const identifierOpts = await this.requireAuth(ctx as Ctx);
+
+          // Resolve productId from slug if needed
+          let productId = args.productId;
+          if (!productId && args.productSlug) {
+            const { data: products, error } = await client.products.listWithPrices();
+            if (error) return { data: null, error: toPlainError(error) };
+            productId = resolveProductId(args, products);
+          }
+          if (!productId) {
+            return { data: null, error: { message: "Either productId or productSlug is required" } };
+          }
+
           return wrapSdkCall(() =>
             client.checkout.create({
-              productId: args.productId,
+              productId,
               priceId: args.priceId,
               successUrl: args.successUrl,
               cancelUrl: args.cancelUrl,
-              customerId: identifierOpts!.customerId,
-              customerData: identifierOpts!.customerData,
+              customerId: identifierOpts.customerId,
+              customerData: identifierOpts.customerData,
             })
           );
         },
       }),
 
+      /**
+       * Create a checkout session for a guest (anonymous) user.
+       * Does NOT require authentication - customerId must be provided explicitly.
+       * Use this for anonymous checkout flows.
+       */
+      guestCheckout: actionGeneric({
+        args: GuestCheckoutArgs,
+        handler: async (_ctx, args) => {
+          // Resolve productId from slug if needed
+          let productId = args.productId;
+          if (!productId && args.productSlug) {
+            const { data: products, error } = await client.products.listWithPrices();
+            if (error) return { data: null, error: toPlainError(error) };
+            productId = resolveProductId(args, products);
+          }
+          if (!productId) {
+            return { data: null, error: { message: "Either productId or productSlug is required" } };
+          }
+
+          return wrapSdkCall(() =>
+            client.checkout.create({
+              productId,
+              priceId: args.priceId,
+              successUrl: args.successUrl,
+              cancelUrl: args.cancelUrl,
+              customerId: args.customerId,
+              customerData: {
+                email: args.customerEmail,
+                name: args.customerName,
+              },
+            })
+          );
+        },
+      }),
+
+      /**
+       * Check if the authenticated user has access to a product.
+       */
       check: actionGeneric({
         args: CheckArgs,
         handler: async (ctx, args) => {
-          const { client, identifierOpts } = await this.getAuthParams({ ctx: ctx as Ctx });
+          const identifierOpts = await this.requireAuth(ctx as Ctx);
+
+          // Resolve productId from slug if needed
+          let productId = args.productId;
+          if (!productId && args.productSlug) {
+            const { data: products, error } = await client.products.listWithPrices();
+            if (error) return { data: null, error: toPlainError(error) };
+            productId = resolveProductId(args, products);
+          }
+          if (!productId) {
+            return { data: null, error: { message: "Either productId or productSlug is required" } };
+          }
+
           return wrapSdkCall(() =>
             client.check({
-              productId: args.productId,
-              customerId: identifierOpts!.customerId,
+              productId,
+              customerId: identifierOpts.customerId,
             })
           );
         },
       }),
 
+      /**
+       * List all products with their prices.
+       * Does not require authentication.
+       */
+      listProducts: actionGeneric({
+        args: ListProductsArgs,
+        handler: async () => {
+          return wrapSdkCall(() => client.products.listWithPrices());
+        },
+      }),
+
+      /**
+       * Get a specific customer by ID.
+       * Does not require the caller to be that customer.
+       */
       getCustomer: actionGeneric({
         args: GetCustomerArgs,
-        handler: async (ctx, args) => {
-          const { client } = await this.getAuthParams({ ctx: ctx as Ctx, requireAuth: false });
+        handler: async (_ctx, args) => {
           return wrapSdkCall(() => client.customers.get(args.customerId));
         },
       }),
 
+      /**
+       * List all customers (admin operation).
+       */
       listCustomers: actionGeneric({
         args: ListCustomersArgs,
-        handler: async (ctx) => {
-          const { client } = await this.getAuthParams({ ctx: ctx as Ctx });
+        handler: async () => {
           return wrapSdkCall(() => client.customers.list());
         },
       }),
 
+      /**
+       * List all subscriptions (admin operation).
+       */
       listSubscriptions: actionGeneric({
         args: ListSubscriptionsArgs,
-        handler: async (ctx) => {
-          const { client } = await this.getAuthParams({ ctx: ctx as Ctx });
+        handler: async () => {
           return wrapSdkCall(() => client.subscriptions.list());
         },
       }),
@@ -171,5 +306,22 @@ export class Surpay<Ctx extends GenericActionCtx<any> = GenericActionCtx<any>> {
   }
 }
 
+// ============================================================================
+// Exports
+// ============================================================================
+
 export * from "./types.js";
 export type { ResponseCase } from "@surgent-dev/surpay";
+
+// Re-export useful types from base SDK for convenience
+export type {
+  Customer,
+  CustomerWithDetails,
+  Product,
+  ProductPrice,
+  ProductWithPrices,
+  Subscription,
+  SubscriptionStatus,
+  CreateCheckoutResponse,
+  CheckResponse,
+} from "@surgent-dev/surpay";

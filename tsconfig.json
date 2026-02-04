@@ -16,6 +16,7 @@
     "declarationMap": true,
     "sourceMap": true
   },
+  "files": [],
   "references": [
     { "path": "./packages/surpay" },
     { "path": "./packages/surpay-convex" }

@@ -1,23 +1,24 @@
 # @surgent-dev/surpay-convex
 
-Convex integration for Surpay SDK.
+Convex integration for Surpay payments SDK.
 
 ## Install
 
 ```bash
-npm install @surgent-dev/surpay-convex
+bun add @surgent-dev/surpay-convex
 ```
 
 ## Setup
 
-Step 1: Create `convex/surpay.ts`
+### Step 1: Create `convex/surpay.ts`
 
 ```typescript
 import { Surpay } from "@surgent-dev/surpay-convex";
 
 const surpay = new Surpay({
-  apiKey: process.env.SURPAY_API_KEY!,
+  apiKey: process.env.SURGENT_API_KEY!,
   identify: async (ctx) => {
+    // Use ctx.auth.getUserIdentity() - works in actions!
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return null;
     return {
@@ -29,87 +30,202 @@ const surpay = new Surpay({
 
 export const {
   createCheckout,
+  guestCheckout,
   check,
+  listProducts,
   getCustomer,
   listCustomers,
   listSubscriptions,
 } = surpay.api();
 ```
 
-Step 2: Set environment variable
+### Step 2: Set environment variable
 
-Add `SURPAY_API_KEY` to your Convex dashboard environment variables.
+Add `SURGENT_API_KEY` to your Convex deployment environment variables.
 
 ## Usage
 
-### Create Checkout
+### Create Checkout (Authenticated User)
 
 ```typescript
-import { api } from "./_generated/api";
+import { useAction } from "convex/react";
+import { api } from "../convex/_generated/api";
 
-// Inside a Convex action or from client
-const { data, error } = await ctx.runAction(api.surpay.createCheckout, {
-  productId: "prod_123",
-  customerId: "cust_123", // Optional if using identify()
-  priceId: "price_123",
-  successUrl: "https://example.com/success",
-  cancelUrl: "https://example.com/cancel",
-});
+const createCheckout = useAction(api.surpay.createCheckout);
 
-if (error) {
-  console.error(error.message);
-} else {
-  console.log(data.checkoutUrl);
+const handleCheckout = async () => {
+  const { data, error } = await createCheckout({
+    // Use productId OR productSlug (not both)
+    productSlug: "pro-plan",
+    // productId: "prod_123",  // alternative
+    successUrl: window.location.origin + "/success",
+    cancelUrl: window.location.origin + "/cancel",
+  });
+
+  if (error) {
+    console.error(error.message);
+    return;
+  }
+
+  // Redirect to checkout
+  window.location.href = data.checkoutUrl;
+};
+```
+
+### Guest Checkout (Anonymous User)
+
+For anonymous checkout without requiring sign-in:
+
+```typescript
+import { useAction } from "convex/react";
+import { api } from "../convex/_generated/api";
+
+// Get or create persistent guest ID
+function getGuestId(): string {
+  const key = "surpay_guest_id";
+  let id = localStorage.getItem(key);
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem(key, id);
+  }
+  return id;
 }
+
+const guestCheckout = useAction(api.surpay.guestCheckout);
+
+const handleGuestCheckout = async (email?: string, name?: string) => {
+  const { data, error } = await guestCheckout({
+    productSlug: "pro-plan",
+    customerId: getGuestId(),
+    customerEmail: email,
+    customerName: name,
+    successUrl: window.location.origin + "/success",
+    cancelUrl: window.location.origin + "/cancel",
+  });
+
+  if (error) {
+    console.error(error.message);
+    return;
+  }
+
+  window.location.href = data.checkoutUrl;
+};
 ```
 
 ### Check Access
 
 ```typescript
-import { api } from "./_generated/api";
+import { useAction } from "convex/react";
+import { api } from "../convex/_generated/api";
 
-const { data, error } = await ctx.runAction(api.surpay.check, {
-  productId: "prod_123",
-  customerId: "cust_123", // Optional if using identify()
-});
+const check = useAction(api.surpay.check);
 
-if (data?.allowed) {
-  // Allow access
-}
+const hasAccess = async () => {
+  const { data, error } = await check({
+    productSlug: "pro-plan", // or productId: "prod_123"
+  });
+
+  if (error) {
+    console.error(error.message);
+    return false;
+  }
+
+  return data.allowed;
+};
+```
+
+### List Products
+
+```typescript
+import { useAction } from "convex/react";
+import { api } from "../convex/_generated/api";
+
+const listProducts = useAction(api.surpay.listProducts);
+
+const products = await listProducts({});
+// products.data = [{ product: { id, name, slug }, prices: [...] }, ...]
 ```
 
 ### Get Customer
 
 ```typescript
-import { api } from "./_generated/api";
-
-const { data, error } = await ctx.runAction(api.surpay.getCustomer, {
-  customerId: "cust_123",
-});
+const getCustomer = useAction(api.surpay.getCustomer);
+const { data, error } = await getCustomer({ customerId: "cust_123" });
 ```
 
-### List Customers
+### List Customers (Admin)
 
 ```typescript
-import { api } from "./_generated/api";
-
-const { data, error } = await ctx.runAction(api.surpay.listCustomers, {});
+const listCustomers = useAction(api.surpay.listCustomers);
+const { data, error } = await listCustomers({});
 ```
 
-### List Subscriptions
+### List Subscriptions (Admin)
 
 ```typescript
-import { api } from "./_generated/api";
-
-const { data, error } = await ctx.runAction(api.surpay.listSubscriptions, {});
+const listSubscriptions = useAction(api.surpay.listSubscriptions);
+const { data, error } = await listSubscriptions({});
 ```
 
 ## API Reference
 
+### Actions Requiring Authentication
+
+These use `identify()` to get the customer ID automatically:
+
 | Action | Args | Returns |
 |--------|------|---------|
-| `createCheckout` | `productId`, `customerId?`, `priceId?`, `successUrl?`, `cancelUrl?` | `{ checkoutUrl: string, customerId: string }` |
-| `check` | `productId`, `customerId?` | `{ allowed: boolean }` |
-| `getCustomer` | `customerId` | `CustomerWithDetails` |
-| `listCustomers` | - | `Customer[]` |
-| `listSubscriptions` | - | `Subscription[]` |
+| `createCheckout` | `productId?`, `productSlug?`, `priceId?`, `successUrl?`, `cancelUrl?` | `{ data: { checkoutUrl, customerId }, error }` |
+| `check` | `productId?`, `productSlug?` | `{ data: { allowed }, error }` |
+
+### Actions NOT Requiring Authentication
+
+| Action | Args | Returns |
+|--------|------|---------|
+| `guestCheckout` | `productId?`, `productSlug?`, `customerId`, `customerEmail?`, `customerName?`, `priceId?`, `successUrl?`, `cancelUrl?` | `{ data: { checkoutUrl, customerId }, error }` |
+| `listProducts` | - | `{ data: ProductWithPrices[], error }` |
+| `getCustomer` | `customerId` | `{ data: CustomerWithDetails, error }` |
+| `listCustomers` | - | `{ data: Customer[], error }` |
+| `listSubscriptions` | - | `{ data: Subscription[], error }` |
+
+## Important Notes
+
+### Using `identify()` Correctly
+
+The `identify()` function runs in a Convex **action** context. Actions have:
+- ✅ `ctx.auth.getUserIdentity()` - **use this!**
+- ✅ `ctx.runQuery()` / `ctx.runMutation()`
+- ❌ `ctx.db` - **NOT available in actions!**
+
+```typescript
+// ✅ CORRECT - getUserIdentity works in actions
+identify: async (ctx) => {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity) return null;
+  return {
+    customerId: identity.subject,
+    customerData: { name: identity.name, email: identity.email },
+  };
+}
+
+// ❌ WRONG - ctx.db doesn't exist in actions!
+identify: async (ctx) => {
+  const userId = await getAuthUserId(ctx);
+  const user = await ctx.db.get(userId); // 💥 FAILS
+  return { customerId: userId };
+}
+```
+
+### Product ID vs Slug
+
+All product-related actions accept either `productId` or `productSlug`:
+
+```typescript
+// By ID
+await createCheckout({ productId: "prod_abc123" });
+
+// By slug (human-readable)
+await createCheckout({ productSlug: "pro-plan" });
+```
+
+Using slugs is recommended for readability, but IDs are faster (no lookup needed).
