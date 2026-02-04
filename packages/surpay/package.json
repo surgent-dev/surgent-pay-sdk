@@ -1,5 +1,5 @@
 {
-  "name": "@surgent-dev/surpay",
+  "name": "@surgent/pay",
   "version": "0.2.1",
   "description": "Official Surpay SDK for TypeScript/JavaScript",
   "type": "module",

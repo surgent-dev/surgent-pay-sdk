@@ -6,7 +6,7 @@
  * @example
  * ```typescript
  * // convex/surpay.ts
- * import { Surpay } from "@surgent-dev/surpay-convex";
+ * import { Surpay } from "@surgent/pay-convex";
  *
  * const surpay = new Surpay({
  *   apiKey: process.env.SURGENT_API_KEY!,
@@ -32,7 +32,7 @@
  * ```
  */
 import { actionGeneric, GenericActionCtx } from "convex/server";
-import { Surpay as SurpayClient, ResponseCase } from "@surgent-dev/surpay";
+import { Surpay as SurpayClient, ResponseCase } from "@surgent/pay";
 import {
   CreateCheckoutArgs,
   CheckArgs,
@@ -311,7 +311,7 @@ export class Surpay<Ctx extends GenericActionCtx<any> = GenericActionCtx<any>> {
 // ============================================================================
 
 export * from "./types.js";
-export type { ResponseCase } from "@surgent-dev/surpay";
+export type { ResponseCase } from "@surgent/pay";
 
 // Re-export useful types from base SDK for convenience
 export type {
@@ -324,4 +324,4 @@ export type {
   SubscriptionStatus,
   CreateCheckoutResponse,
   CheckResponse,
-} from "@surgent-dev/surpay";
+} from "@surgent/pay";

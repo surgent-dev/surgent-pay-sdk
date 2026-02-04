@@ -1,21 +1,21 @@
-# @surgent-dev/surpay-convex
+# @surgent/pay-convex
 
-Convex integration for Surpay payments SDK.
+Convex integration for Surgent Pay SDK.
 
 ## Install
 
 ```bash
-bun add @surgent-dev/surpay-convex
+bun add @surgent/pay-convex
 ```
 
 ## Setup
 
-### Step 1: Create `convex/surpay.ts`
+### Step 1: Create `convex/pay.ts`
 
 ```typescript
-import { Surpay } from "@surgent-dev/surpay-convex";
+import { Surpay } from "@surgent/pay-convex";
 
-const surpay = new Surpay({
+const pay = new Surpay({
   apiKey: process.env.SURGENT_API_KEY!,
   identify: async (ctx) => {
     // Use ctx.auth.getUserIdentity() - works in actions!
@@ -36,7 +36,7 @@ export const {
   getCustomer,
   listCustomers,
   listSubscriptions,
-} = surpay.api();
+} = pay.api();
 ```
 
 ### Step 2: Set environment variable
@@ -51,7 +51,7 @@ Add `SURGENT_API_KEY` to your Convex deployment environment variables.
 import { useAction } from "convex/react";
 import { api } from "../convex/_generated/api";
 
-const createCheckout = useAction(api.surpay.createCheckout);
+const createCheckout = useAction(api.pay.createCheckout);
 
 const handleCheckout = async () => {
   const { data, error } = await createCheckout({
@@ -82,7 +82,7 @@ import { api } from "../convex/_generated/api";
 
 // Get or create persistent guest ID
 function getGuestId(): string {
-  const key = "surpay_guest_id";
+  const key = "surgent_guest_id";
   let id = localStorage.getItem(key);
   if (!id) {
     id = crypto.randomUUID();
@@ -91,7 +91,7 @@ function getGuestId(): string {
   return id;
 }
 
-const guestCheckout = useAction(api.surpay.guestCheckout);
+const guestCheckout = useAction(api.pay.guestCheckout);
 
 const handleGuestCheckout = async (email?: string, name?: string) => {
   const { data, error } = await guestCheckout({
@@ -118,7 +118,7 @@ const handleGuestCheckout = async (email?: string, name?: string) => {
 import { useAction } from "convex/react";
 import { api } from "../convex/_generated/api";
 
-const check = useAction(api.surpay.check);
+const check = useAction(api.pay.check);
 
 const hasAccess = async () => {
   const { data, error } = await check({
@@ -140,7 +140,7 @@ const hasAccess = async () => {
 import { useAction } from "convex/react";
 import { api } from "../convex/_generated/api";
 
-const listProducts = useAction(api.surpay.listProducts);
+const listProducts = useAction(api.pay.listProducts);
 
 const products = await listProducts({});
 // products.data = [{ product: { id, name, slug }, prices: [...] }, ...]
@@ -149,21 +149,21 @@ const products = await listProducts({});
 ### Get Customer
 
 ```typescript
-const getCustomer = useAction(api.surpay.getCustomer);
+const getCustomer = useAction(api.pay.getCustomer);
 const { data, error } = await getCustomer({ customerId: "cust_123" });
 ```
 
 ### List Customers (Admin)
 
 ```typescript
-const listCustomers = useAction(api.surpay.listCustomers);
+const listCustomers = useAction(api.pay.listCustomers);
 const { data, error } = await listCustomers({});
 ```
 
 ### List Subscriptions (Admin)
 
 ```typescript
-const listSubscriptions = useAction(api.surpay.listSubscriptions);
+const listSubscriptions = useAction(api.pay.listSubscriptions);
 const { data, error } = await listSubscriptions({});
 ```
 

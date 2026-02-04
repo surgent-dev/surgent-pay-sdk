@@ -1,26 +1,26 @@
-# Surpay SDK for TypeScript
+# Surgent Pay SDK for TypeScript
 
-The Surpay SDK provides a simple and type-safe way to interact with the Surpay API.
+The Surgent Pay SDK provides a simple and type-safe way to interact with the Surgent Pay API.
 
 ## Installation
 
 ```bash
-bun add surpay
+bun add @surgent/pay
 # or
-npm install surpay
+npm install @surgent/pay
 ```
 
 ## Quick Start
 
 ```typescript
-import { Surpay } from 'surpay'
+import { Surpay } from '@surgent/pay'
 
-const surpay = new Surpay({
+const pay = new Surpay({
   apiKey: 'xKmZqWpNrTsYvBcDfGhJkLmNpQrStUvWxYzAbCdEfGhJkLmNpQrStUvWxYzAbCd',
 })
 
 async function example() {
-  const { data: projects, error } = await surpay.projects.list()
+  const { data: projects, error } = await pay.projects.list()
 
   if (error) {
     console.error('Error:', error.message)
@@ -36,9 +36,9 @@ async function example() {
 The SDK can be configured via the constructor or environment variables.
 
 ```typescript
-import { Surpay } from 'surpay'
+import { Surpay } from '@surgent/pay'
 
-const surpay = new Surpay({
+const pay = new Surpay({
   apiKey: process.env.SURPAY_API_KEY, // Fallback: SURPAY_API_KEY env var
   baseUrl: 'https://pay.surgent.dev', // Optional
 })
@@ -49,7 +49,7 @@ const surpay = new Surpay({
 All SDK methods return a `Promise<Result<T, SurpayError>>`.
 
 ```typescript
-const result = await surpay.projects.list()
+const result = await pay.projects.list()
 
 if (result.error) {
   // Handle error
@@ -67,7 +67,7 @@ if (result.error) {
 Use `isSurpayError` to check if an error object is a `SurpayError`.
 
 ```typescript
-import { isSurpayError } from 'surpay'
+import { isSurpayError } from '@surgent/pay'
 
 try {
   // ...
@@ -86,7 +86,7 @@ Note: Projects are created via the Surgent dashboard. The SDK provides read-only
 
 ```typescript
 // List projects
-const { data: projects, error } = await surpay.projects.list()
+const { data: projects, error } = await pay.projects.list()
 ```
 
 ### Products
@@ -95,19 +95,19 @@ Manage products within a project.
 
 ```typescript
 // Create a product
-const { data: product, error } = await surpay.products.create({
+const { data: product, error } = await pay.products.create({
   productGroup: 'group_456',
   name: 'Pro Plan',
   slug: 'pro-plan',
 })
 
 // Update a product
-const { data: updated, error: updateError } = await surpay.products.update('prod_123', {
+const { data: updated, error: updateError } = await pay.products.update('prod_123', {
   name: 'Pro Plan v2',
 })
 
 // List products with their prices
-const { data: products, error: listError } = await surpay.products.listWithPrices()
+const { data: products, error: listError } = await pay.products.listWithPrices()
 ```
 
 ### Prices
@@ -116,7 +116,7 @@ Manage pricing for your products.
 
 ```typescript
 // Create a price
-const { data: price, error } = await surpay.prices.create({
+const { data: price, error } = await pay.prices.create({
   productGroup: 'group_456',
   name: 'Monthly',
   price: 999, // $9.99
@@ -131,7 +131,7 @@ Create hosted checkout sessions.
 
 ```typescript
 // Create a checkout session
-const { data: checkout, error } = await surpay.checkout.create({
+const { data: checkout, error } = await pay.checkout.create({
   productId: 'prod_123',
   priceId: 'price_456',
   customerId: 'cust_123', // Required
@@ -149,7 +149,7 @@ if (checkout) {
 Verify if a customer has access to a specific product.
 
 ```typescript
-const { data, error } = await surpay.check({
+const { data, error } = await pay.check({
   customerId: 'cust_123',
   productId: 'prod_123',
 })
@@ -165,10 +165,10 @@ Retrieve customer information.
 
 ```typescript
 // List customers
-const { data: customers, error } = await surpay.customers.list()
+const { data: customers, error } = await pay.customers.list()
 
 // Get customer with details (subscriptions & transactions)
-const { data: customer, error: getError } = await surpay.customers.get('cust_123')
+const { data: customer, error: getError } = await pay.customers.get('cust_123')
 ```
 
 ### Subscriptions
@@ -177,7 +177,7 @@ Monitor active subscriptions.
 
 ```typescript
 // List subscriptions
-const { data: subscriptions, error } = await surpay.subscriptions.list()
+const { data: subscriptions, error } = await pay.subscriptions.list()
 ```
 
 ### Transactions
@@ -186,7 +186,7 @@ Track payments and revenue.
 
 ```typescript
 // List transactions
-const { data: transactions, error } = await surpay.transactions.list()
+const { data: transactions, error } = await pay.transactions.list()
 ```
 
 ### Accounts
@@ -195,16 +195,16 @@ Manage connected payment processor accounts.
 
 ```typescript
 // Connect a new account (Stripe)
-const { data: account, error } = await surpay.accounts.connect({
+const { data: account, error } = await pay.accounts.connect({
   processor: 'stripe',
 })
 
 // Get account details
-const { data: accountDetails, error: getError } = await surpay.accounts.get('acc_123')
+const { data: accountDetails, error: getError } = await pay.accounts.get('acc_123')
 
 // List connected accounts
-const { data: accounts, error: listError } = await surpay.accounts.list()
+const { data: accounts, error: listError } = await pay.accounts.list()
 
 // Delete/Disconnect an account
-const { error: deleteError } = await surpay.accounts.delete('acc_123')
+const { error: deleteError } = await pay.accounts.delete('acc_123')
 ```
