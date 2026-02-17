@@ -14,10 +14,11 @@ export const CreateCheckoutArgs = v.object({
 export type CreateCheckoutArgs = Infer<typeof CreateCheckoutArgs>;
 
 // CheckArgs: product identifier required (id OR slug)
-// Note: customerId is NOT here - it's injected by the wrapper via identify()
+// customerId is optional - if provided, used directly (guest flow); otherwise resolved via identify()
 export const CheckArgs = v.object({
   productId: v.optional(v.string()),
   productSlug: v.optional(v.string()),
+  customerId: v.optional(v.string()),
 });
 export type CheckArgs = Infer<typeof CheckArgs>;
 

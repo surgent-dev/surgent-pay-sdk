@@ -239,13 +239,15 @@ export class Surpay<Ctx extends GenericActionCtx<any> = GenericActionCtx<any>> {
       }),
 
       /**
-       * Check if the authenticated user has access to a product.
+       * Check if a user has access to a product.
+       * Pass `customerId` explicitly for guest flows, or omit it to resolve from identity.
        */
       check: actionGeneric({
         args: CheckArgs,
         handler: async (ctx, args) => {
           try {
-            const identifierOpts = await this.requireAuth(ctx as Ctx);
+            const customerId =
+              args.customerId ?? (await this.requireAuth(ctx as Ctx)).customerId;
 
             // Resolve productId from slug if needed
             let productId = args.productId;
@@ -261,7 +263,7 @@ export class Surpay<Ctx extends GenericActionCtx<any> = GenericActionCtx<any>> {
             return wrapSdkCall(() =>
               client.check({
                 productId,
-                customerId: identifierOpts.customerId,
+                customerId,
               })
             );
           } catch (e) {
