@@ -26,7 +26,7 @@
     "payments",
     "billing",
     "subscriptions",
-    "stripe",
+    "surgent",
     "sdk"
   ],
   "author": "Surgent",
