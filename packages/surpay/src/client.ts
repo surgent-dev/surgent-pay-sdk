@@ -34,7 +34,7 @@ export class SurpayClient {
       'Content-Type': 'application/json',
     }
     this.resultOptions = {
-      responseCase: options.responseCase ?? 'snake',
+      responseCase: options.responseCase ?? 'camel',
     }
   }
 

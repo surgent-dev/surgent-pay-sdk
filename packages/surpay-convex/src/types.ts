@@ -8,9 +8,8 @@ import { v, Infer } from "convex/values";
 export const CreateCheckoutArgs = v.object({
   productId: v.optional(v.string()),
   productSlug: v.optional(v.string()),
-  priceId: v.optional(v.string()),
+  priceId: v.string(),
   successUrl: v.optional(v.string()),
-  cancelUrl: v.optional(v.string()),
 });
 export type CreateCheckoutArgs = Infer<typeof CreateCheckoutArgs>;
 
@@ -44,9 +43,8 @@ export type ListProductsArgs = Infer<typeof ListProductsArgs>;
 export const GuestCheckoutArgs = v.object({
   productId: v.optional(v.string()),
   productSlug: v.optional(v.string()),
-  priceId: v.optional(v.string()),
+  priceId: v.string(),
   successUrl: v.optional(v.string()),
-  cancelUrl: v.optional(v.string()),
   customerId: v.string(),
   customerEmail: v.optional(v.string()),
   customerName: v.optional(v.string()),

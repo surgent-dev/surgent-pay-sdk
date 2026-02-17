@@ -172,29 +172,33 @@ export class Surpay<Ctx extends GenericActionCtx<any> = GenericActionCtx<any>> {
       createCheckout: actionGeneric({
         args: CreateCheckoutArgs,
         handler: async (ctx, args) => {
-          const identifierOpts = await this.requireAuth(ctx as Ctx);
+          try {
+            const identifierOpts = await this.requireAuth(ctx as Ctx);
 
-          // Resolve productId from slug if needed
-          let productId = args.productId;
-          if (!productId && args.productSlug) {
-            const { data: products, error } = await client.products.listWithPrices();
-            if (error) return { data: null, error: toPlainError(error) };
-            productId = resolveProductId(args, products);
-          }
-          if (!productId) {
-            return { data: null, error: { message: "Either productId or productSlug is required" } };
-          }
+            // Resolve productId from slug if needed
+            let productId = args.productId;
+            if (!productId && args.productSlug) {
+              const { data: products, error } = await client.products.listWithPrices();
+              if (error) return { data: null, error: toPlainError(error) };
+              productId = resolveProductId(args, products);
+            }
+            if (!productId) {
+              return { data: null, error: { message: "Either productId or productSlug is required" } };
+            }
 
-          return wrapSdkCall(() =>
-            client.checkout.create({
-              productId,
-              priceId: args.priceId,
-              successUrl: args.successUrl,
-              cancelUrl: args.cancelUrl,
-              customerId: identifierOpts.customerId,
-              customerData: identifierOpts.customerData,
-            })
-          );
+            return wrapSdkCall(() =>
+              client.checkout.create({
+                productId,
+                priceId: args.priceId,
+                successUrl: args.successUrl,
+                customerId: identifierOpts.customerId,
+                customerEmail: identifierOpts.customerData?.email,
+                customerName: identifierOpts.customerData?.name,
+              })
+            );
+          } catch (e) {
+            return { data: null, error: toPlainError(e) };
+          }
         },
       }),
 
@@ -206,30 +210,31 @@ export class Surpay<Ctx extends GenericActionCtx<any> = GenericActionCtx<any>> {
       guestCheckout: actionGeneric({
         args: GuestCheckoutArgs,
         handler: async (_ctx, args) => {
-          // Resolve productId from slug if needed
-          let productId = args.productId;
-          if (!productId && args.productSlug) {
-            const { data: products, error } = await client.products.listWithPrices();
-            if (error) return { data: null, error: toPlainError(error) };
-            productId = resolveProductId(args, products);
-          }
-          if (!productId) {
-            return { data: null, error: { message: "Either productId or productSlug is required" } };
-          }
+          try {
+            // Resolve productId from slug if needed
+            let productId = args.productId;
+            if (!productId && args.productSlug) {
+              const { data: products, error } = await client.products.listWithPrices();
+              if (error) return { data: null, error: toPlainError(error) };
+              productId = resolveProductId(args, products);
+            }
+            if (!productId) {
+              return { data: null, error: { message: "Either productId or productSlug is required" } };
+            }
 
-          return wrapSdkCall(() =>
-            client.checkout.create({
-              productId,
-              priceId: args.priceId,
-              successUrl: args.successUrl,
-              cancelUrl: args.cancelUrl,
-              customerId: args.customerId,
-              customerData: {
-                email: args.customerEmail,
-                name: args.customerName,
-              },
-            })
-          );
+            return wrapSdkCall(() =>
+              client.checkout.create({
+                productId,
+                priceId: args.priceId,
+                successUrl: args.successUrl,
+                customerId: args.customerId,
+                customerEmail: args.customerEmail,
+                customerName: args.customerName,
+              })
+            );
+          } catch (e) {
+            return { data: null, error: toPlainError(e) };
+          }
         },
       }),
 
@@ -239,25 +244,29 @@ export class Surpay<Ctx extends GenericActionCtx<any> = GenericActionCtx<any>> {
       check: actionGeneric({
         args: CheckArgs,
         handler: async (ctx, args) => {
-          const identifierOpts = await this.requireAuth(ctx as Ctx);
+          try {
+            const identifierOpts = await this.requireAuth(ctx as Ctx);
 
-          // Resolve productId from slug if needed
-          let productId = args.productId;
-          if (!productId && args.productSlug) {
-            const { data: products, error } = await client.products.listWithPrices();
-            if (error) return { data: null, error: toPlainError(error) };
-            productId = resolveProductId(args, products);
-          }
-          if (!productId) {
-            return { data: null, error: { message: "Either productId or productSlug is required" } };
-          }
+            // Resolve productId from slug if needed
+            let productId = args.productId;
+            if (!productId && args.productSlug) {
+              const { data: products, error } = await client.products.listWithPrices();
+              if (error) return { data: null, error: toPlainError(error) };
+              productId = resolveProductId(args, products);
+            }
+            if (!productId) {
+              return { data: null, error: { message: "Either productId or productSlug is required" } };
+            }
 
-          return wrapSdkCall(() =>
-            client.check({
-              productId,
-              customerId: identifierOpts.customerId,
-            })
-          );
+            return wrapSdkCall(() =>
+              client.check({
+                productId,
+                customerId: identifierOpts.customerId,
+              })
+            );
+          } catch (e) {
+            return { data: null, error: toPlainError(e) };
+          }
         },
       }),
 

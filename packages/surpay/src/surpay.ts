@@ -89,7 +89,7 @@ export class Surpay extends SurpayClient {
   }
 
   accounts = {
-    connect: (params: ConnectAccountRequest) => this.post<ConnectAccountResponse>('/accounts/connect', params),
+    connect: (params: ConnectAccountRequest) => this.post<ConnectAccountResponse>('/accounts/connect/whop', params),
 
     get: (accountId: string) => this.get<ConnectedAccount>(`/accounts/${accountId}`),
 

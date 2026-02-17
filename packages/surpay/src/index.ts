@@ -14,7 +14,6 @@
  *   productId: 'prod_xxx',
  *   priceId: 'price_xxx',
  *   successUrl: 'https://myapp.com/success',
- *   cancelUrl: 'https://myapp.com/cancel',
  * })
  *
  * if (error) {
@@ -23,7 +22,7 @@
  * }
  *
  * // Redirect user to checkout
- * console.log(data.checkoutUrl)
+ * console.log(data.purchaseUrl)
  * ```
  */
 

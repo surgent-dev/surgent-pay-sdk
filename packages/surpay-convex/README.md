@@ -55,11 +55,10 @@ const createCheckout = useAction(api.pay.createCheckout);
 
 const handleCheckout = async () => {
   const { data, error } = await createCheckout({
-    // Use productId OR productSlug (not both)
     productSlug: "pro-plan",
     // productId: "prod_123",  // alternative
+    priceId: "price_456",
     successUrl: window.location.origin + "/success",
-    cancelUrl: window.location.origin + "/cancel",
   });
 
   if (error) {
@@ -68,7 +67,9 @@ const handleCheckout = async () => {
   }
 
   // Redirect to checkout
-  window.location.href = data.checkoutUrl;
+  if (data.purchaseUrl) {
+    window.location.href = data.purchaseUrl;
+  }
 };
 ```
 
@@ -96,11 +97,11 @@ const guestCheckout = useAction(api.pay.guestCheckout);
 const handleGuestCheckout = async (email?: string, name?: string) => {
   const { data, error } = await guestCheckout({
     productSlug: "pro-plan",
+    priceId: "price_456",
     customerId: getGuestId(),
     customerEmail: email,
     customerName: name,
     successUrl: window.location.origin + "/success",
-    cancelUrl: window.location.origin + "/cancel",
   });
 
   if (error) {
@@ -108,7 +109,9 @@ const handleGuestCheckout = async (email?: string, name?: string) => {
     return;
   }
 
-  window.location.href = data.checkoutUrl;
+  if (data.purchaseUrl) {
+    window.location.href = data.purchaseUrl;
+  }
 };
 ```
 
@@ -175,14 +178,14 @@ These use `identify()` to get the customer ID automatically:
 
 | Action | Args | Returns |
 |--------|------|---------|
-| `createCheckout` | `productId?`, `productSlug?`, `priceId?`, `successUrl?`, `cancelUrl?` | `{ data: { checkoutUrl, customerId }, error }` |
+| `createCheckout` | `productId?`, `productSlug?`, `priceId`, `successUrl?` | `{ data: { id, sessionId, purchaseUrl, status }, error }` |
 | `check` | `productId?`, `productSlug?` | `{ data: { allowed }, error }` |
 
 ### Actions NOT Requiring Authentication
 
 | Action | Args | Returns |
 |--------|------|---------|
-| `guestCheckout` | `productId?`, `productSlug?`, `customerId`, `customerEmail?`, `customerName?`, `priceId?`, `successUrl?`, `cancelUrl?` | `{ data: { checkoutUrl, customerId }, error }` |
+| `guestCheckout` | `productId?`, `productSlug?`, `customerId`, `priceId`, `customerEmail?`, `customerName?`, `successUrl?` | `{ data: { id, sessionId, purchaseUrl, status }, error }` |
 | `listProducts` | - | `{ data: ProductWithPrices[], error }` |
 | `getCustomer` | `customerId` | `{ data: CustomerWithDetails, error }` |
 | `listCustomers` | - | `{ data: Customer[], error }` |
@@ -193,12 +196,12 @@ These use `identify()` to get the customer ID automatically:
 ### Using `identify()` Correctly
 
 The `identify()` function runs in a Convex **action** context. Actions have:
-- ✅ `ctx.auth.getUserIdentity()` - **use this!**
-- ✅ `ctx.runQuery()` / `ctx.runMutation()`
-- ❌ `ctx.db` - **NOT available in actions!**
+- `ctx.auth.getUserIdentity()` - **use this!**
+- `ctx.runQuery()` / `ctx.runMutation()`
+- `ctx.db` - **NOT available in actions!**
 
 ```typescript
-// ✅ CORRECT - getUserIdentity works in actions
+// CORRECT - getUserIdentity works in actions
 identify: async (ctx) => {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) return null;
@@ -208,10 +211,10 @@ identify: async (ctx) => {
   };
 }
 
-// ❌ WRONG - ctx.db doesn't exist in actions!
+// WRONG - ctx.db doesn't exist in actions!
 identify: async (ctx) => {
   const userId = await getAuthUserId(ctx);
-  const user = await ctx.db.get(userId); // 💥 FAILS
+  const user = await ctx.db.get(userId); // FAILS
   return { customerId: userId };
 }
 ```
@@ -222,10 +225,10 @@ All product-related actions accept either `productId` or `productSlug`:
 
 ```typescript
 // By ID
-await createCheckout({ productId: "prod_abc123" });
+await createCheckout({ productId: "prod_abc123", priceId: "price_456" });
 
 // By slug (human-readable)
-await createCheckout({ productSlug: "pro-plan" });
+await createCheckout({ productSlug: "pro-plan", priceId: "price_456" });
 ```
 
 Using slugs is recommended for readability, but IDs are faster (no lookup needed).

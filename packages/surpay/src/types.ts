@@ -30,8 +30,8 @@ export type RecurringInterval = 'day' | 'week' | 'month' | 'year'
 
 export type TransactionType = 'payment' | 'processor_fee' | 'refund' | 'dispute' | 'balance' | 'payout'
 
-export type CheckoutStatus = 'open' | 'complete' | 'expired'
-export type CheckoutMode = 'payment' | 'subscription' | 'setup'
+export type CheckoutStatus = 'creating' | 'open' | 'completed' | 'failed'
+export type CheckoutMode = 'payment'
 
 export type PayoutStatus = 'paid' | 'pending' | 'in_transit' | 'canceled' | 'failed'
 
@@ -52,10 +52,11 @@ export interface Project {
 
 export interface Customer {
   id: string
+  projectId: string
+  externalId?: string | null
+  processorCustomerId?: string | null
   email: string | null
   name?: string | null
-  processorCustomerId?: string | null
-  projectId: string
 }
 
 export interface TransactionSummary {
@@ -163,23 +164,20 @@ export interface ProductWithPrices {
 // Checkout
 // ============================================================================
 
-export interface CustomerData {
-  email?: string | null
-  name?: string | null
-}
-
 export interface CreateCheckoutRequest {
   productId: string
   priceId?: string
   successUrl?: string
-  cancelUrl?: string
-  customerId: string
-  customerData?: CustomerData | null
+  customerId?: string
+  customerEmail?: string
+  customerName?: string
 }
 
 export interface CreateCheckoutResponse {
-  checkoutUrl: string
-  customerId: string
+  id: string
+  sessionId: string
+  purchaseUrl: string | null
+  status: string
 }
 
 // ============================================================================
@@ -206,36 +204,10 @@ export interface Transaction {
   amount: number
   currency: string
   processor: string
-
-  // Optional fields
-  accountId?: string | null
-  accountAmount?: number | null
-  accountCurrency?: string | null
-  chargeId?: string | null
-  checkoutSessionId?: string | null
   customerId?: string | null
-  incurredByTransactionId?: string | null
-  metadata?: Record<string, unknown>
-  paymentTransactionId?: string | null
-  payoutId?: string | null
-  payoutTransactionId?: string | null
-  presentmentAmount?: number | null
-  presentmentCurrency?: string | null
-  presentmentTaxAmount?: number | null
-  processorInvoiceId?: string | null
   productId?: string | null
-  productPriceId?: string | null
-  projectId: string
-  refundId?: string | null
-  refundedAt?: string | null
-  subscriptionId?: string | null
   succeededAt?: string | null
-  taxAmount?: number | null
-  taxCountry?: string | null
-  taxFilingAmount?: number | null
-  taxFilingCurrency?: string | null
-  taxState?: string | null
-  transferId?: string | null
+  refundedAt?: string | null
 }
 
 // ============================================================================
@@ -246,36 +218,37 @@ export interface Subscription {
   id: string
   createdAt: string
   status: SubscriptionStatus
-
-  canceledAt?: string | null
-  currentPeriodEnd?: string | null
-  currentPeriodStart?: string | null
-  customerId?: string | null
-  deletedAt?: string | null
-  endedAt?: string | null
-  processorCustomerId?: string | null
-  processorSubscriptionId?: string | null
+  projectId: string
   productId?: string | null
   productPriceId?: string | null
-  projectId: string
+  customerId?: string | null
+  processorSubscriptionId?: string | null
+  processorCustomerId?: string | null
+  currentPeriodStart?: string | null
+  currentPeriodEnd?: string | null
+  canceledAt?: string | null
+  endedAt?: string | null
 }
 
 // ============================================================================
-// Connected Accounts (Stripe Connect)
+// Connected Accounts
 // ============================================================================
 
 export interface ConnectAccountRequest {
-  processor: string
-  accountType?: string
-  country?: string
+  companyName?: string
+  title?: string
   email?: string
+  country?: string
   businessType?: string
 }
 
 export interface ConnectAccountResponse {
+  id: string
   accountId: string
-  onboardingUrl: string
   processorAccountId: string
+  status: string
+  companyId: string
+  title: string
 }
 
 export interface ConnectedAccount {
@@ -289,6 +262,7 @@ export interface ConnectedAccount {
   payoutsEnabled: boolean
   businessType?: string | null
   processorAccountId?: string | null
+  data?: Record<string, unknown>
 }
 
 // ============================================================================

@@ -134,13 +134,12 @@ Create hosted checkout sessions.
 const { data: checkout, error } = await pay.checkout.create({
   productId: 'prod_123',
   priceId: 'price_456',
-  customerId: 'cust_123', // Required
+  customerId: 'cust_123',
   successUrl: 'https://example.com/success',
-  cancelUrl: 'https://example.com/cancel',
 })
 
 if (checkout) {
-  console.log(checkout.checkoutUrl)
+  console.log(checkout.purchaseUrl)
 }
 ```
 
@@ -194,9 +193,11 @@ const { data: transactions, error } = await pay.transactions.list()
 Manage connected payment processor accounts.
 
 ```typescript
-// Connect a new account (Stripe)
+// Connect a new account (Whop)
 const { data: account, error } = await pay.accounts.connect({
-  processor: 'stripe',
+  companyName: 'My Company',
+  title: 'Main Store',
+  email: 'billing@example.com',
 })
 
 // Get account details
