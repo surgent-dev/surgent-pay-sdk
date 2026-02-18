@@ -1,6 +1,6 @@
 {
   "name": "@surgent/pay-convex",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Convex integration for Surpay SDK",
   "type": "module",
   "main": "dist/index.js",
